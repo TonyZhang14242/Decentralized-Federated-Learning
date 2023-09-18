@@ -2,8 +2,9 @@ import torch
 
 import main_distribute
 from utils.options import args_parser
-import blue_client
-import blue_server
+
+import tcp_client
+import tcp_server
 import os
 import time
 
@@ -16,8 +17,8 @@ if __name__ == '__main__':
         exit()
     with open('blue_address.txt', 'r') as f:
         blue_address = f.readlines()
-    server = blue_server.BluetoothConnection()
-    client = blue_client.BluetoothConnection()
+    server = tcp_server.TCPServer()
+    client = tcp_client.TCPClient()
     fed = main_distribute.FedClient(args)
     for iters in range(args.epochs):
         if not (iters == 0 and args.client_no == 0):
