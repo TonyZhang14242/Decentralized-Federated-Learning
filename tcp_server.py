@@ -2,7 +2,7 @@ import socket
 import time
 
 class TCPServer:
-    def acceptFromServer(self):
+    def acceptFromServer():
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(("0.0.0.0",10000))
         server.listen(10000)
@@ -30,7 +30,7 @@ class TCPServer:
             print('file received!')
         server.close()
 
-    def get_connection(self):
+    def get_connection():
             soc, addr = server.accept()
             message = ''.encode()
             print('Start transmission...')
