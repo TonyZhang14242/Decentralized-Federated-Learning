@@ -4,7 +4,7 @@ import time
 
 
 class TCPClient:
-    def connectToHost(self, addr):
+    def connectToHost(addr):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             client.connect((addr, 8990))
@@ -22,7 +22,7 @@ class TCPClient:
         except:
             print(f'Cannot connect to host {addr}')
 
-    def send_message_to_target(self, addr):
+    def send_message_to_target(addr):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             client.connect((addr, 8990))
