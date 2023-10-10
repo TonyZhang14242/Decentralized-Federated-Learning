@@ -3,8 +3,7 @@ import torch
 import main_distribute
 from utils.options import args_parser
 
-import tcp_client
-import tcp_server
+from connection import tcp_server, tcp_client
 import os
 import time
 

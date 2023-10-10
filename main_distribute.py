@@ -15,6 +15,7 @@ from models.Nets import MLP, CNNMnist, CNNCifar
 from models.Fed import FedAvg
 from models.test import test_img
 from models.mnist_self import MnistPart
+from utils.sampling import random_split
 
 matplotlib.use('Agg')
 
@@ -23,7 +24,8 @@ class FedClient:
 
     def __init__(self, args):
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
-        self.dataset_train = MnistPart('./data/', train=True, transform=trans_mnist)
+        # self.dataset_train = MnistPart('./data/', train=True, transform=trans_mnist)
+        self.dataset_train = datasets.MNIST('./data/', train=True, download=True, transform=trans_mnist)
         self.dataset_test = datasets.MNIST('./data/', train=False, download=True, transform=trans_mnist)
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
@@ -31,13 +33,14 @@ class FedClient:
         self.net_glob = CNNMnist(args=args).to(args.device)
         self.net_glob.train()
         self.loss_train = []
+        self.sample = random_split(self.dataset_train, 10000)
         if args.client_no == 0:
             torch.save(self.net_glob.state_dict(), 'weight.pt')
 
     def iter(self, iter_num, weight):
         self.net_glob.load_state_dict(weight)
         print('training')
-        local = LocalUpdate(args=self.args, dataset=self.dataset_train, idxs=list(range(len(self.dataset_train))))
+        local = LocalUpdate(args=self.args, dataset=self.dataset_train, idxs=self.sample)
         w, loss = local.train(self.net_glob.to(self.args.device))
         # print('saving weights')
         # torch.save(w, 'weight.pt')

@@ -22,6 +22,10 @@ def mnist_iid(dataset, num_users):
     return dict_users
 
 
+def random_split(dataset, num_items):
+    return set(np.random.choice(len(dataset), num_items))
+
+
 def mnist_spilit(dataset, num_users, client_no):
     num_items = int(len(dataset) / num_users)
     idxs = np.arange(len(dataset))
@@ -75,7 +79,7 @@ def cifar_iid(dataset, num_users):
 
 
 if __name__ == '__main__':
-    dataset_train = datasets.MNIST('../data/mnist/', train=True, download=True,
+    dataset_train = datasets.MNIST('./data/mnist/', train=True, download=True,
                                    transform=transforms.Compose([
                                        transforms.ToTensor(),
                                        transforms.Normalize((0.1307,), (0.3081,))
