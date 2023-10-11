@@ -30,7 +30,7 @@ class FedClient:
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
         self.args = args
-        self.net_glob = CNNMnist(args=args).to(args.device)
+        self.net_glob = CNNMnist().to(args.device)
         self.net_glob.train()
         self.loss_train = []
         self.sample = random_split(self.dataset_train, 10000)

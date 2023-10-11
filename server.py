@@ -5,6 +5,7 @@ import asyncio
 from utils.server_options import args_parser
 from connection.tcp_server import listen, inc_eps, get_received_numbers
 from models.Fed import FedAvg
+from models.Nets import CNNMnist
 
 
 async def main(cur_loop):
@@ -14,13 +15,13 @@ async def main(cur_loop):
     epoch = 0
     while True:
         await asyncio.sleep(1)
-        print(f'received: {get_received_numbers()}, clients: {args.clients}')
+        # print(f'received: {get_received_numbers()}, clients: {args.clients}')
         if get_received_numbers() == args.clients:
             await cur_loop.run_in_executor(None, client_avg)
             epoch += 1
             if epoch >= args.epochs:
                 break
-    await listen_task.cancel()
+    listen_task.cancel()
 
 
 def client_avg():
@@ -37,5 +38,7 @@ if __name__ == '__main__':
     args = args_parser()
     if not os.path.exists('./clients'):
         os.makedirs('./clients')
+    net = CNNMnist()
+    torch.save(net.state_dict(), './clients/avg.pt')
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main(loop))

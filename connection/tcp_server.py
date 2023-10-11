@@ -22,7 +22,7 @@ def get_received_numbers():
 
 
 async def handle(reader: StreamReader, writer: StreamWriter):
-    print('connection accepted')
+    # print('connection accepted')
     message = bytes()
     time_start = time.time()
     recv_file = False
@@ -55,7 +55,6 @@ async def handle(reader: StreamReader, writer: StreamWriter):
                 print('sending weights')
                 writer.write("FILE_START\r\n".encode())
                 with open('./clients/avg.pt', 'rb') as f:  # file directory here
-                    print('file open')
                     while True:
                         b = f.read(1024)
                         if len(b) == 0:
@@ -70,7 +69,7 @@ async def handle(reader: StreamReader, writer: StreamWriter):
         if len(data) == 0:
             break
     time_end = time.time()
-    print(f'connection closed within time {time_end - time_start}!')
+    # print(f'connection closed within time {time_end - time_start}!')
 
 
 async def listen(client_num):

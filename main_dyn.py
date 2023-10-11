@@ -16,6 +16,7 @@ if __name__ == '__main__':
     server = '127.0.0.1'
     fed = main_distribute.FedClient(args)
     for local_epoch in range(args.epochs):
+        time.sleep(1)
         client_net.request_weight(server, local_epoch)  # receive and wait
         w = torch.load('weight.pt')
         print('train')
