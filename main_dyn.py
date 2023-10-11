@@ -6,23 +6,24 @@ import main_distribute
 from utils.options import args_parser
 import connection.tcp_client as client_net
 import os
+import configparser
 import time
 
 if __name__ == '__main__':
     args = args_parser()
-    args.num_channels = 1
-    args.model = 'cnn'
-    # server = '172.18.36.132'
-    server = '127.0.0.1'
+    config = configparser.ConfigParser()
+    config.read('client_config.ini')
+    server = config['server']['addr']
+    port = int(config['server']['port'])
     fed = main_distribute.FedClient(args)
     for local_epoch in range(args.epochs):
         time.sleep(1)
-        client_net.request_weight(server, local_epoch)  # receive and wait
+        client_net.request_weight(server, port, local_epoch)  # receive and wait
         w = torch.load('weight.pt')
         print('train')
         w, loss = fed.iter(args.local_ep, w)  # train
         torch.save(w, 'weight.pt')
-        client_net.send_file(server, args.client_no)
+        client_net.send_file(server, port, args.client_no)
         # train_acc, test_acc = fed.test()
         # print(f'Epoch: {local_epoch}, loss: {local_epoch}')
         # with open(f'./save/peer_{args.client_no}_time{args.time}_{args.pick}_{args.topology}.txt', 'w') as f:

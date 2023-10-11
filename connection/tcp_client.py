@@ -2,11 +2,11 @@ import socket
 import time
 
 
-def send_file(addr, client_id):
+def send_file(addr, port, client_id):
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # try:
     try:
-        client.connect((addr, 10000))
+        client.connect((addr, port))
         print('Start transmission...')
         client.send(f'CLIENT_ID_{client_id}\r\n'.encode())
         client.send("FILE_START\r\n".encode())
@@ -27,12 +27,12 @@ def send_file(addr, client_id):
         client.close()
 
 
-def request_weight(addr, eps):
+def request_weight(addr, port, eps):
     received = False
     while not received:
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            client.connect((addr, 10000))
+            client.connect((addr, port))
             print('Start requesting...')
             client.send(f"REQUEST_WEIGHT_{eps}\r\n".encode())
             time_start = time.time()
