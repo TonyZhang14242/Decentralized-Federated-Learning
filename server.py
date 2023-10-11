@@ -8,19 +8,24 @@ from models.Fed import FedAvg
 
 
 async def main(cur_loop):
-    listen_task = cur_loop.create_task(listen(args.client_num))
+    listen_task = cur_loop.create_task(listen(args.clients))
     # ping_task = cur_loop.create_task(ping())
     # await cur_loop.run_in_executor(None, slow_task)
+    epoch = 0
     while True:
         await asyncio.sleep(1)
-        print(f'received: {get_received_numbers()}, clients: {args.client_num}')
-        if get_received_numbers() == args.client_num:
+        print(f'received: {get_received_numbers()}, clients: {args.clients}')
+        if get_received_numbers() == args.clients:
             await cur_loop.run_in_executor(None, client_avg)
+            epoch += 1
+            if epoch >= args.epochs:
+                break
+    await listen_task.cancel()
 
 
 def client_avg():
     weights = []
-    for i in range(args.client_num):
+    for i in range(args.clients):
         w = torch.load(f'./clients/client_{i}.pt')
         weights.append(w)
     w_avg = FedAvg(weights)
@@ -28,20 +33,8 @@ def client_avg():
     inc_eps()
 
 
-async def ping():
-    while True:
-        await asyncio.sleep(1)
-        print('ping')
-
-
-def slow_task():
-    time.sleep(5)
-    print('im slow')
-
-
 if __name__ == '__main__':
     args = args_parser()
-    # args.client_num = 8
     if not os.path.exists('./clients'):
         os.makedirs('./clients')
     loop = asyncio.get_event_loop()
