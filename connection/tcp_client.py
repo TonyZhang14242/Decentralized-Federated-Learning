@@ -41,7 +41,7 @@ def request_weight(addr, port, eps):
                 data = client.recv(1024)
                 message += data
                 if message.startswith('WAIT\r\n'.encode()):
-                    print("waiting...")
+                    # print("waiting...")
                     time.sleep(10)
                     break
                 if message.startswith('FILE_START\r\n'.encode()):

@@ -52,7 +52,7 @@ async def handle(reader: StreamReader, writer: StreamWriter):
             message = message[len('REQUEST_WEIGHT_'.encode()):]
             requesting = int(message[:message.find('\r\n'.encode())])
             if requesting <= eps:
-                print('sending weights')
+                # print('sending weights')
                 writer.write("FILE_START\r\n".encode())
                 with open('./clients/avg.pt', 'rb') as f:  # file directory here
                     while True:
