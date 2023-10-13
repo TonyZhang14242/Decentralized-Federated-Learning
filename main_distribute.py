@@ -34,8 +34,6 @@ class FedClient:
         self.net_glob.train()
         self.loss_train = []
         self.sample = random_split(self.dataset_train, 10000)
-        if args.client_no == 0:
-            torch.save(self.net_glob.state_dict(), 'weight.pt')
 
     def iter(self, iter_num, weight):
         self.net_glob.load_state_dict(weight)
@@ -46,7 +44,6 @@ class FedClient:
         # torch.save(w, 'weight.pt')
         print('Round {:3d}, Average loss {:.3f}'.format(iter_num, loss))
         self.loss_train.append(loss)
-        time.sleep(2)
         return w, loss
 
     def plot_loss(self):
@@ -55,8 +52,7 @@ class FedClient:
         plt.plot(range(len(self.loss_train)), self.loss_train)
         plt.ylabel('train_loss')
         plt.savefig(
-            './save/distribute_{}_{}_{}_C{}_iid{}.png'.format(args.dataset, args.model, args.epochs, args.frac,
-                                                              args.iid))
+            './client_{}_loss.png'.format(args.dataset, args.client_no))
 
     def test(self):
         self.net_glob.eval()

@@ -21,8 +21,10 @@ if __name__ == '__main__':
         client_net.request_weight(server, port, local_epoch)  # receive and wait
         w = torch.load('weight.pt')
         print('train')
-        w, loss = fed.iter(args.local_ep, w)  # train
+        start_time = time.time()
+        w, loss = fed.iter(local_epoch, w)  # train
         torch.save(w, 'weight.pt')
+        print(f'Train complete in {time.time() - start_time} seconds')
         client_net.send_file(server, port, args.client_no)
         # train_acc, test_acc = fed.test()
         # print(f'Epoch: {local_epoch}, loss: {local_epoch}')
@@ -31,5 +33,4 @@ if __name__ == '__main__':
         #     f.write(f'Test acc: {test_acc}\n')
         #     for peer in torch.load('weight.pt')['path']:
         #         f.write(str(peer) + '\n')
-    if args.plot:
-        fed.plot_loss()
+    fed.plot_loss()
