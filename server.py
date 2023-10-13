@@ -23,9 +23,10 @@ async def main(cur_loop):
         await asyncio.sleep(1)
         # print(f'received: {get_received_numbers()}, clients: {args.clients}')
         if get_received_numbers() == args.clients:
-            await cur_loop.run_in_executor(None, client_avg)
+            w = await cur_loop.run_in_executor(None, client_avg)
             epoch += 1
-            acc_test, loss_test = await cur_loop.run_in_executor(None, test_img, (net, dataset_test, args))
+            net.load_state_dict(w)
+            acc_test, loss_test = await cur_loop.run_in_executor(None, test_img, net, dataset_test, args)
             acc.append(acc_test)
             if epoch >= args.epochs:
                 break
@@ -47,6 +48,7 @@ def client_avg():
     w_avg = FedAvg(weights)
     torch.save(w_avg, './clients/avg.pt')
     inc_eps()
+    return w_avg
 
 
 if __name__ == '__main__':

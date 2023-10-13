@@ -33,7 +33,6 @@ def request_weight(addr, port, eps):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             client.connect((addr, port))
-            print('Start requesting...')
             client.send(f"REQUEST_WEIGHT_{eps}\r\n".encode())
             time_start = time.time()
             message = bytes()
@@ -46,6 +45,7 @@ def request_weight(addr, port, eps):
                     break
                 if message.startswith('FILE_START\r\n'.encode()):
                     message = message[len('FILE_START\r\n'.encode()):]
+                    print('Start requesting...')
                 if message.__contains__('FILE_END\r\n'.encode()):
                     file = message[:message.find("FILE_END\r\n".encode())]
                     message = message[message.find("FILE_END\r\n".encode()):]
