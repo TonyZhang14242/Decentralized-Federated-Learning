@@ -48,6 +48,16 @@ async def handle(reader: StreamReader, writer: StreamWriter):
         if message.startswith('FILE_START\r\n'.encode()):
             message = message[len('FILE_START\r\n'.encode()):]
             recv_file = True
+        if message.startswith('REQUEST_SEQ'.encode()):
+            message = message[len('REQUEST_SEQ'.encode()):]
+            writer.write("SEQ_START\r\n".encode())
+            with open('../seq.txt', 'rb') as f:  # file directory here
+                while True:
+                    b = f.read(1024)
+                    if len(b) == 0:
+                        break
+                    writer.write(b)
+            writer.write("SEQ_END\r\n".encode())
         if message.startswith('REQUEST_WEIGHT_'.encode()):
             message = message[len('REQUEST_WEIGHT_'.encode()):]
             requesting = int(message[:message.find('\r\n'.encode())])

@@ -16,6 +16,8 @@ if __name__ == '__main__':
     server = config['server']['addr']
     port = int(config['server']['port'])
     fed = main_distribute.FedClient(args)
+    if not os.path.exists('./save'):
+        os.makedirs('./save')
     for local_epoch in range(args.epochs):
         time.sleep(1)
         client_net.request_weight(server, port, local_epoch)  # receive and wait

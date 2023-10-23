@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # Python version: 3.6
+import datetime
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -33,26 +34,41 @@ class FedClient:
         self.net_glob = CNNMnist().to(args.device)
         self.net_glob.train()
         self.loss_train = []
+        self.acc_train = []
         self.sample = random_split(self.dataset_train, 10000)
+        self.now = datetime.datetime.now()
 
     def iter(self, iter_num, weight):
         self.net_glob.load_state_dict(weight)
         print('training')
         local = LocalUpdate(args=self.args, dataset=self.dataset_train, idxs=self.sample)
-        w, loss = local.train(self.net_glob.to(self.args.device))
+        w, loss, acc = local.train(self.net_glob.to(self.args.device))
         # print('saving weights')
         # torch.save(w, 'weight.pt')
         print('Round {:3d}, Average loss {:.3f}'.format(iter_num, loss))
         self.loss_train.append(loss)
+        self.acc_train.append(acc)
         return w, loss
 
     def plot_loss(self):
         args = self.args
+        now = self.now
         plt.figure()
         plt.plot(range(len(self.loss_train)), self.loss_train)
         plt.ylabel('train_loss')
         plt.savefig(
-            './client_{}_loss.png'.format(args.dataset, args.client_no))
+            './save/client_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_loss.png'.format(args.client_no, now.month, now.day,
+                                                                         now.hour, now.minute))
+
+    def plot_acc(self):
+        args = self.args
+        now = self.now
+        plt.figure()
+        plt.plot(range(len(self.acc_train)), self.acc_train)
+        plt.ylabel('train_acc')
+        plt.savefig(
+            './save/client_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(args.client_no, now.month, now.day,
+                                                                        now.hour, now.minute))
 
     def test(self):
         self.net_glob.eval()

@@ -1,3 +1,4 @@
+import datetime
 import time
 import os
 import torch
@@ -14,6 +15,8 @@ import matplotlib.pyplot as plt
 async def main(cur_loop):
     global net
     global dataset_test
+    now = datetime.datetime.now()
+    start_time = time.time()
     listen_task = cur_loop.create_task(listen(args.clients))
     # ping_task = cur_loop.create_task(ping())
     # await cur_loop.run_in_executor(None, slow_task)
@@ -30,14 +33,15 @@ async def main(cur_loop):
             acc.append(acc_test)
             if epoch >= args.epochs:
                 break
+    plot_acc(acc, now)
     listen_task.cancel()
 
 
-def plot_acc(acc):
+def plot_acc(acc, now):
     plt.figure()
     plt.plot(range(len(acc)), acc)
-    plt.ylabel('train_loss')
-    plt.savefig('./save/server_loss.png')
+    plt.ylabel('test_acc')
+    plt.savefig('./save/server_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(now.month, now.day, now.hour, now.minute))
 
 
 def client_avg():

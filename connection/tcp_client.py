@@ -67,6 +67,36 @@ def request_weight(addr, port, eps):
             client.close()
 
 
+def request_seq(addr, port):
+    while True:
+        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            client.connect((addr, port))
+            client.send(f"REQUEST_SEQ\r\n".encode())
+            time_start = time.time()
+            message = bytes()
+            while True:
+                data = client.recv(1024)
+                message += data
+                if message.startswith('SEQ_START\r\n'.encode()):
+                    message = message[len('SEQ_START\r\n'.encode()):]
+                if message.__contains__('SEQ_END\r\n'.encode()):
+                    seq = message[:message.find("SEQ_END\r\n".encode())]
+                    seq = seq.decode().split(',')
+                    time_end = time.time()
+                    print(f'Transmission finished within time {time_end - time_start}!')
+                    return seq
+                if len(data) == 0:
+                    break
+        except Exception as e:
+            print(e)
+            print('Request failed, retry in 10 sec')
+            time.sleep(10)
+        finally:
+            client.close()
+
+
 if __name__ == '__main__':
-    send_file('127.0.0.1', 10)
+    print(request_seq('127.0.0.1', 10000))
+    # send_file('127.0.0.1', 10000)
     # request_weight('127.0.0.1')
