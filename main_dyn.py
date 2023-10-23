@@ -36,3 +36,4 @@ if __name__ == '__main__':
         #     for peer in torch.load('weight.pt')['path']:
         #         f.write(str(peer) + '\n')
     fed.plot_loss()
+    fed.plot_acc()
