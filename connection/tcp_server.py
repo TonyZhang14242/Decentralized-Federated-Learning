@@ -6,6 +6,7 @@ import numpy as np
 
 eps = 0
 received_clients = np.zeros(1)
+acc_list_all = []
 bk = '\r\n'.encode()
 
 
@@ -23,9 +24,10 @@ def get_received_numbers():
 
 async def handle(reader: StreamReader, writer: StreamWriter):
     # print('connection accepted')
+    global acc_list_all
     message = bytes()
-    time_start = time.time()
     recv_file = False
+    recv_acc = False
     client_id = -1
     while True:
         data = await reader.read(1024)
@@ -41,6 +43,16 @@ async def handle(reader: StreamReader, writer: StreamWriter):
                 break
             else:
                 continue
+        if recv_acc:
+            if message.__contains__('ACC_END\r\n'.encode()):
+                print(f'Received accuracy of client {client_id}')
+                acc_list = message[:message.find("ACC_END\r\n".encode())]
+                acc_list = acc_list.decode().split(',')
+                acc_list = [float(_) for _ in acc_list]
+                acc_list_all.append({'client': client_id, 'acc': acc_list})
+                break
+            else:
+                continue
         if message.startswith('CLIENT_ID_'.encode()):
             message = message[len('CLIENT_ID_'.encode()):]
             client_id = int(message[:message.find(bk)])
@@ -48,6 +60,9 @@ async def handle(reader: StreamReader, writer: StreamWriter):
         if message.startswith('FILE_START\r\n'.encode()):
             message = message[len('FILE_START\r\n'.encode()):]
             recv_file = True
+        if message.startswith('ACC_START\r\n'.encode()):
+            message = message[len('ACC_START\r\n'.encode()):]
+            recv_acc = True
         if message.startswith('REQUEST_SEQ'.encode()):
             message = message[len('REQUEST_SEQ'.encode()):]
             writer.write("SEQ_START\r\n".encode())

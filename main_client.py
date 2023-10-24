@@ -35,5 +35,6 @@ if __name__ == '__main__':
         #     f.write(f'Test acc: {test_acc}\n')
         #     for peer in torch.load('weight.pt')['path']:
         #         f.write(str(peer) + '\n')
+    client_net.send_acc(server, port, args.client_no,  fed.acc_train)
     fed.plot_loss()
     fed.plot_acc()

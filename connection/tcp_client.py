@@ -27,6 +27,29 @@ def send_file(addr, port, client_id):
         client.close()
 
 
+def send_acc(addr, port, client_id, acc):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    acc_str = ''
+    for _ in acc:
+        acc_str += ',{:.2f}'.format(_)
+    acc_bytes = acc_str[1:].encode()
+    try:
+        client.connect((addr, port))
+        print('Start transmission...')
+        time_start = time.time()
+        client.send(f'CLIENT_ID_{client_id}\r\n'.encode())
+        client.send("ACC_START\r\n".encode())
+        client.send(acc_bytes)
+        client.send("ACC_END\r\n".encode())
+        time_end = time.time()
+        print(f'Transmission finished within time {time_end - time_start}!')
+    except Exception as e:
+        print(e)
+        print('Send file failed, retry in 10s')
+    finally:
+        client.close()
+
+
 def request_weight(addr, port, eps):
     received = False
     while not received:

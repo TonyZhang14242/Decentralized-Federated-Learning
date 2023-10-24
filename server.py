@@ -1,10 +1,12 @@
 import datetime
 import time
 import os
+
+import numpy as np
 import torch
 import asyncio
 from utils.server_options import args_parser
-from connection.tcp_server import listen, inc_eps, get_received_numbers
+from connection.tcp_server import listen, inc_eps, get_received_numbers, acc_list_all
 from models.Fed import FedAvg
 from models.Nets import CNNMnist
 from models.test import test_img
@@ -15,6 +17,7 @@ import matplotlib.pyplot as plt
 async def main(cur_loop):
     global net
     global dataset_test
+    global acc_list_all
     now = datetime.datetime.now()
     start_time = time.time()
     listen_task = cur_loop.create_task(listen(args.clients))
@@ -33,15 +36,25 @@ async def main(cur_loop):
             acc.append(acc_test)
             if epoch >= args.epochs:
                 break
-    plot_acc(acc, now)
+    plot_acc(acc, now, 'test')
+    await asyncio.sleep(1)
+    while len(acc_list_all) < args.clients:
+        await asyncio.sleep(10)
+    avg_acc = np.zeros(len(acc_list_all[0]['acc']))
+    for client_acc in acc_list_all:
+        avg_acc += np.array(client_acc['acc'])
+    avg_acc /= args.clients
+    plot_acc(avg_acc, now, 'train_avg')
+    print(f'Total time: {time.time() - start_time} seconds')
     listen_task.cancel()
 
 
-def plot_acc(acc, now):
+def plot_acc(acc, now, name):
     plt.figure()
     plt.plot(range(len(acc)), acc)
     plt.ylabel('test_acc')
-    plt.savefig('./save/server_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(now.month, now.day, now.hour, now.minute))
+    plt.savefig(
+        './save/server_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(name, now.month, now.day, now.hour, now.minute))
 
 
 def client_avg():
