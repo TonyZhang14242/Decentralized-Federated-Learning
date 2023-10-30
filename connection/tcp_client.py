@@ -57,14 +57,15 @@ def request_weight(addr, port, eps):
         try:
             client.connect((addr, port))
             client.send(f"REQUEST_WEIGHT_{eps}\r\n".encode())
+            print(f"REQUEST_WEIGHT_{eps}")
             time_start = time.time()
             message = bytes()
             while True:
                 data = client.recv(1024)
                 message += data
                 if message.startswith('WAIT\r\n'.encode()):
-                    # print("waiting...")
-                    time.sleep(10)
+                    print("waiting...")
+                    time.sleep(2)
                     break
                 if message.startswith('FILE_START\r\n'.encode()):
                     message = message[len('FILE_START\r\n'.encode()):]
@@ -84,8 +85,8 @@ def request_weight(addr, port, eps):
 
         except Exception as e:
             print(e)
-            print('Request failed, retry in 10 sec')
-            time.sleep(10)
+            print('Request failed, retry in 2 sec')
+            time.sleep(2)
         finally:
             client.close()
 
@@ -106,6 +107,7 @@ def request_seq(addr, port):
                 if message.__contains__('SEQ_END\r\n'.encode()):
                     seq = message[:message.find("SEQ_END\r\n".encode())]
                     seq = seq.decode().split(',')
+                    seq = [int(_) for _ in seq]
                     time_end = time.time()
                     print(f'Transmission finished within time {time_end - time_start}!')
                     return seq
@@ -114,7 +116,7 @@ def request_seq(addr, port):
         except Exception as e:
             print(e)
             print('Request failed, retry in 10 sec')
-            time.sleep(10)
+            time.sleep(2)
         finally:
             client.close()
 

@@ -1,12 +1,13 @@
+import random
 import socket
 import time
 import asyncio
 from asyncio import StreamReader, StreamWriter
+from . import acc_list_all
 import numpy as np
 
 eps = 0
 received_clients = np.zeros(1)
-acc_list_all = []
 bk = '\r\n'.encode()
 
 
@@ -23,7 +24,10 @@ def get_received_numbers():
 
 
 async def handle(reader: StreamReader, writer: StreamWriter):
-    # print('connection accepted')
+    rng = random.randint(10, 99)
+    # print(f'{rng}: connection accepted')
+    # loop = asyncio.get_running_loop()
+    time_start = time.time()
     global acc_list_all
     message = bytes()
     recv_file = False
@@ -40,6 +44,7 @@ async def handle(reader: StreamReader, writer: StreamWriter):
                     f.write(file)
                     f.flush()
                 received_clients[client_id] = 1
+                # print(received_clients)
                 break
             else:
                 continue
@@ -54,26 +59,35 @@ async def handle(reader: StreamReader, writer: StreamWriter):
             else:
                 continue
         if message.startswith('CLIENT_ID_'.encode()):
+            # print(rng, message)
             message = message[len('CLIENT_ID_'.encode()):]
             client_id = int(message[:message.find(bk)])
             message = message[message.find(bk) + len(bk):]
         if message.startswith('FILE_START\r\n'.encode()):
+            # print(rng, message)
             message = message[len('FILE_START\r\n'.encode()):]
             recv_file = True
         if message.startswith('ACC_START\r\n'.encode()):
+            # print(rng, message)
             message = message[len('ACC_START\r\n'.encode()):]
+            # print(rng, message)
             recv_acc = True
         if message.startswith('REQUEST_SEQ'.encode()):
+            # print(rng, message)
             message = message[len('REQUEST_SEQ'.encode()):]
             writer.write("SEQ_START\r\n".encode())
-            with open('../seq.txt', 'rb') as f:  # file directory here
+            with open('./seq.txt', 'rb') as f:  # file directory here
                 while True:
                     b = f.read(1024)
                     if len(b) == 0:
                         break
                     writer.write(b)
             writer.write("SEQ_END\r\n".encode())
+            await writer.drain()
+            writer.close()
+            break
         if message.startswith('REQUEST_WEIGHT_'.encode()):
+            # print(rng, message)
             message = message[len('REQUEST_WEIGHT_'.encode()):]
             requesting = int(message[:message.find('\r\n'.encode())])
             if requesting <= eps:
@@ -93,8 +107,8 @@ async def handle(reader: StreamReader, writer: StreamWriter):
             break
         if len(data) == 0:
             break
-    time_end = time.time()
-    # print(f'connection closed within time {time_end - time_start}!')
+    # time_end = time.time()
+    # print(f'{rng}: connection closed')
 
 
 async def listen(client_num):

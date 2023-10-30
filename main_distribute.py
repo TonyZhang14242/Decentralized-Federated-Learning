@@ -13,7 +13,7 @@ import time
 
 from models.Update import LocalUpdate
 from models.Nets import MLP, CNNMnist, CNNCifar
-from models.Fed import FedAvg
+from models.datasets import SimpleData
 from models.test import test_img
 from models.mnist_self import MnistPart
 from utils.sampling import random_split
@@ -23,29 +23,34 @@ matplotlib.use('Agg')
 
 class FedClient:
 
-    def __init__(self, args):
+    def __init__(self, args, seq):
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         # self.dataset_train = MnistPart('./data/', train=True, transform=trans_mnist)
-        self.dataset_train = datasets.MNIST('./data/', train=True, download=True, transform=trans_mnist)
-        self.dataset_test = datasets.MNIST('./data/', train=False, download=True, transform=trans_mnist)
+        self.datasets_train = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(args.concepts)]
+        self.datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(args.concepts)]
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
         self.args = args
-        self.net_glob = CNNMnist().to(args.device)
+        self.net_glob = MLP(2, 10, 2)
+        if args.dataset == 'circle':
+            self.net_glob = MLP(2, 10, 2)
         self.net_glob.train()
         self.loss_train = []
         self.acc_train = []
-        self.sample = random_split(self.dataset_train, 10000)
+        self.sample = random_split(self.datasets_train[0], args.sample_num)
         self.now = datetime.datetime.now()
+        self.seq = seq
 
     def iter(self, iter_num, weight):
         self.net_glob.load_state_dict(weight)
         print('training')
-        local = LocalUpdate(args=self.args, dataset=self.dataset_train, idxs=self.sample)
+        local = LocalUpdate(args=self.args, dataset=self.datasets_train[self.seq[iter_num]], idxs=self.sample)
         w, loss, acc = local.train(self.net_glob.to(self.args.device))
+        for eps in range(self.args.local_ep - 1):
+            w, loss, acc = local.train(self.net_glob.to(self.args.device))
         # print('saving weights')
         # torch.save(w, 'weight.pt')
-        print('Round {:3d}, Average loss {:.3f}'.format(iter_num, loss))
+        print('Concept {:3d}, Average loss {:.3f}'.format(iter_num, loss))
         self.loss_train.append(loss)
         self.acc_train.append(acc)
         return w, loss
@@ -72,8 +77,8 @@ class FedClient:
 
     def test(self):
         self.net_glob.eval()
-        acc_train, loss_train = test_img(self.net_glob, self.dataset_train, self.args)
-        acc_test, loss_test = test_img(self.net_glob, self.dataset_test, self.args)
+        acc_train, loss_train = test_img(self.net_glob, self.datasets_train[0], self.args)
+        acc_test, loss_test = test_img(self.net_glob, self.datasets_test[0], self.args)
         print("Training accuracy: {:.2f}".format(acc_train))
         print("Testing accuracy: {:.2f}".format(acc_test))
         return acc_train, acc_test

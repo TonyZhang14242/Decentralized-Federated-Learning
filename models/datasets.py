@@ -1,30 +1,19 @@
+import numpy as np
 from torch.utils.data import Dataset
 import torch
 
 
-class SineData(Dataset):
-    def __init__(self):
-        pass
+class SimpleData(Dataset):
+    def __init__(self, path):
+        self.data = np.loadtxt(path)
 
     def __len__(self):
-        return 2147483647
+        return len(self.data)
 
     def __getitem__(self, idx):
-        feat = torch.rand(2)
-        label = float(feat[1] < torch.sin(feat[0]))
-        return feat, label
-
-
-class CircleData(Dataset):
-    def __init__(self, center, radius):
-        self.center = center
-        self.radius = radius
-
-    def __len__(self):
-        return 2147483647
-
-    def __getitem__(self, idx):
-        feat = torch.rand(2) * 2
-        label = float((feat[0] - self.center[0]) ** 2 + (feat[1] - self.center[1]) ** 2 < self.radius ** 2)
+        feat = self.data[idx][0:-1]
+        label = self.data[idx][-1]
+        feat = feat.astype(np.float32)
+        label = label.astype(np.longlong)
         return feat, label
 

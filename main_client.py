@@ -15,19 +15,20 @@ if __name__ == '__main__':
     config.read('client_config.ini')
     server = config['server']['addr']
     port = int(config['server']['port'])
-    fed = main_distribute.FedClient(args)
+    seq = client_net.request_seq(server, port)
+    fed = main_distribute.FedClient(args, seq)
     if not os.path.exists('./save'):
         os.makedirs('./save')
-    for local_epoch in range(args.epochs):
-        time.sleep(1)
-        client_net.request_weight(server, port, local_epoch)  # receive and wait
+    for cid in range(len(seq)):
+        client_net.request_weight(server, port, cid)  # receive and wait
         w = torch.load('weight.pt')
         print('train')
         start_time = time.time()
-        w, loss = fed.iter(local_epoch, w)  # train
+        w, loss = fed.iter(cid, w)  # train
         torch.save(w, 'weight.pt')
         print(f'Train complete in {time.time() - start_time} seconds')
         client_net.send_file(server, port, args.client_no)
+        time.sleep(1)
         # train_acc, test_acc = fed.test()
         # print(f'Epoch: {local_epoch}, loss: {local_epoch}')
         # with open(f'./save/peer_{args.client_no}_time{args.time}_{args.pick}_{args.topology}.txt', 'w') as f:
