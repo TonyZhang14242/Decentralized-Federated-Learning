@@ -69,7 +69,7 @@ def plot_acc(acc, now, name):
     plt.ylabel(f'{name}_acc')
     plt.savefig(
         './save/server_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(name, now.month, now.day, now.hour, now.minute))
-    with open('./save/server_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt') as f:
+    with open('./save/server_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt', 'w') as f:
         f.write(str(acc))
 
 

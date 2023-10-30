@@ -57,14 +57,14 @@ def request_weight(addr, port, eps):
         try:
             client.connect((addr, port))
             client.send(f"REQUEST_WEIGHT_{eps}\r\n".encode())
-            print(f"REQUEST_WEIGHT_{eps}")
+            # print(f"REQUEST_WEIGHT_{eps}")
             time_start = time.time()
             message = bytes()
             while True:
                 data = client.recv(1024)
                 message += data
                 if message.startswith('WAIT\r\n'.encode()):
-                    print("waiting...")
+                    # print("waiting...")
                     time.sleep(2)
                     break
                 if message.startswith('FILE_START\r\n'.encode()):

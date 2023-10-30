@@ -27,9 +27,9 @@ def circle(fig=False):
     test = gen_circle(centers, 0.1, 1000)
     if not os.path.exists('./data/circle'):
         os.makedirs('./data/circle')
-    for i in range(len(train)):
-        np.savetxt(f'./data/circle/train_{i}.txt', train[i])
-        np.savetxt(f'./data/circle/test_{i}.txt', test[i])
+    # for i in range(len(train)):
+    #     np.savetxt(f'./data/circle/train_{i}.txt', train[i])
+    #     np.savetxt(f'./data/circle/test_{i}.txt', test[i])
     if fig:
         plt.figure(figsize=(10, 100))
         for i in range(1, 11):
