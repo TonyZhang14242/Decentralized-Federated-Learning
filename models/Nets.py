@@ -19,7 +19,7 @@ class MLP(nn.Module):
     def forward(self, x):
         x = x.view(-1, self.dim_in)
         x = self.layer_input(x)
-        x = self.dropout(x)
+        # x = self.dropout(x)
         x = self.relu(x)
         x = self.layer_hidden(x)
         return x

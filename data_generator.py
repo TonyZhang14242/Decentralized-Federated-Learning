@@ -50,12 +50,9 @@ def circle(fig=False):
         # plt.show()
 
 
-def gen_sine(count):
+def gen_sine1(count):
     result = []
     points = np.random.random((count, 2))
-    points[:, 1] *= 2
-    points[:, 1] -= 1
-    points[:, 0] *= np.pi * 2
     label = points[:, 1] < np.sin(points[:, 0])
     result.append(np.c_[points, label])
     points = np.random.random((count, 2))
@@ -68,8 +65,8 @@ def gen_sine(count):
 
 
 def sine(fig=False):
-    train = gen_sine(10000)
-    test = gen_sine(1000)
+    train = gen_sine1(10000)
+    test = gen_sine1(1000)
     if not os.path.exists('./data/sine'):
         os.makedirs('./data/sine')
     save_npz('sine', train, test)

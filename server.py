@@ -28,6 +28,8 @@ async def main(cur_loop):
     # ping_task = cur_loop.create_task(ping())
     # await cur_loop.run_in_executor(None, slow_task)
     acc = []
+    loss = []
+    acc_detail = []
     seq = generate_markov_chain(args.markov_pattern, args.markov_prob, states, args.markov_len)
     with open(f'./save/{folder}/seq.txt', 'w') as f:
         f.write(str(seq[0]))
@@ -42,29 +44,48 @@ async def main(cur_loop):
     #     seq = [int(_) for _ in seq_str]
     #     print("Sequence: ", seq)
     cid = 0
+    concept_ep = 0
     while True:
         logger.flush()
-        await asyncio.sleep(1)
+        await asyncio.sleep(0.5)
         # time.sleep(1)
         if get_received_numbers() == args.clients:
             w = await cur_loop.run_in_executor(None, client_avg)
             net.load_state_dict(w)
-            print(f"testing in current concept: {seq[cid]}")
-            acc_test_cur, loss_test_cur = await cur_loop.run_in_executor(None, test_img, net,
-                                                                         datasets_test[seq[cid]], args)
-            acc.append(acc_test_cur)
-            if cid < len(seq) - 1:
-                print(f"testing in next concept: {seq[cid + 1]}")
-                acc_test_next, loss_test_next = await cur_loop.run_in_executor(None, test_img, net,
-                                                                               datasets_test[seq[cid + 1]], args)
-                acc.append(acc_test_next)
+            if concept_ep < args.concept_ep - 1:
+                if args.detail:
+                    print(f'concept epoch {concept_ep}')
+                    print(f"testing concept epoch {concept_ep} in concept: {seq[cid]}")
+                    acc_test_cur, loss_test_cur = await cur_loop.run_in_executor(None, test_img, net,
+                                                                                 datasets_test[seq[cid]], args)
+                    acc_detail.append(acc_test_cur)
+                concept_ep += 1
             else:
-                break
-            np.savetxt(
-                f'./save/{folder}/server_test_acc.txt',
-                np.array(acc))
-            cid += 1
-    plot_acc(acc, now, 'test')
+                print(f'concept epoch {concept_ep}')
+                print(f"testing in current concept: {seq[cid]}")
+                acc_test_cur, loss_test_cur = await cur_loop.run_in_executor(None, test_img, net,
+                                                                             datasets_test[seq[cid]], args)
+                acc.append(acc_test_cur)
+                acc_detail.append(acc_test_cur)
+                loss.append(loss_test_cur)
+                if cid < len(seq) - 1:
+                    print(f"testing in next concept: {seq[cid + 1]}")
+                    acc_test_next, loss_test_next = await cur_loop.run_in_executor(None, test_img, net,
+                                                                                   datasets_test[seq[cid + 1]], args)
+                    acc.append(acc_test_next)
+                    acc_detail.append(acc_test_next)
+                    loss.append(loss_test_next)
+                else:
+                    break
+                np.savetxt(
+                    f'./save/{folder}/server_test_acc.txt',
+                    np.array(acc))
+                cid += 1
+                concept_ep = 0
+    plot_acc(acc, now, 'test_acc')
+    if args.detail:
+        plot_acc(acc_detail, now, 'test_detail_acc')
+    plot_acc(loss, now, 'test_loss')
     await asyncio.sleep(1)
     while len(acc_list_all) < args.clients:
         await asyncio.sleep(10)
@@ -72,7 +93,7 @@ async def main(cur_loop):
     for client_acc in acc_list_all:
         avg_acc += np.array(client_acc['acc'])
     avg_acc /= args.clients
-    plot_acc(avg_acc, now, 'train_average')
+    plot_acc(avg_acc, now, 'train_acc_average')
     print(f'Total time: {time.time() - start_time} seconds')
     print(f'Average test acc: {sum(acc) / len(acc)}')
     listen_task.cancel()
@@ -81,11 +102,12 @@ async def main(cur_loop):
 def plot_acc(acc, now, name):
     plt.figure()
     plt.plot(range(len(acc)), acc)
-    plt.ylabel(f'{name}_acc')
+    plt.ylabel(name)
+    plt.title(title)
     plt.savefig(
-        f'./save/{folder}/server_{name}_acc.png')
+        f'./save/{folder}/server_{name}.png')
     np.savetxt(
-        f'./save/{folder}/server_{name}_acc.txt',
+        f'./save/{folder}/server_{name}.txt',
         np.array(acc))
 
 
@@ -116,6 +138,7 @@ if __name__ == '__main__':
     now = datetime.datetime.now()
     folder = '{}_{}_{}_{}_{:0>2}{:0>2}_{:0>2}{:0>2}'.format(args.dataset, args.markov_pattern, args.markov_prob,
                                                             args.markov_len, now.month, now.day, now.hour, now.minute)
+    title = '{}_{}_{}_{}'.format(args.dataset, args.markov_pattern, args.markov_prob, args.markov_len)
     os.makedirs(f'./save/{folder}')
     logger = Logger(f'./save/{folder}/server.log')
     sys.stdout = logger
