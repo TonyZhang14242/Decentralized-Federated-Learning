@@ -4,6 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
+def save_npz(name, train, test):
+    for i in range(len(train)):
+        np.savez_compressed(f'./data/{name}/train_{i}.npz', data=train[i])
+        np.savez_compressed(f'./data/{name}/test_{i}.npz', data=test[i])
+
+
 def gen_circle(series, radius, count):
     result = []
     half_count_plus = int(count / 2 + count / 20)
@@ -27,9 +33,7 @@ def circle(fig=False):
     test = gen_circle(centers, 0.1, 1000)
     if not os.path.exists('./data/circle'):
         os.makedirs('./data/circle')
-    # for i in range(len(train)):
-    #     np.savetxt(f'./data/circle/train_{i}.txt', train[i])
-    #     np.savetxt(f'./data/circle/test_{i}.txt', test[i])
+    save_npz('circle', train, test)
     if fig:
         plt.figure(figsize=(50, 20))
         for i in range(1, 11):
@@ -68,9 +72,7 @@ def sine(fig=False):
     test = gen_sine(1000)
     if not os.path.exists('./data/sine'):
         os.makedirs('./data/sine')
-    for i in range(len(train)):
-        np.savetxt(f'./data/sine/train_{i}.txt', train[i])
-        np.savetxt(f'./data/sine/test_{i}.txt', test[i])
+    save_npz('sine', train, test)
     if fig:
         plt.figure(figsize=(20, 10))
         for i in range(1, 3):
@@ -118,4 +120,4 @@ def sea(fig=False):
 if __name__ == '__main__':
     if not os.path.exists('./data'):
         os.makedirs('./data')
-    circle(fig=True)
+    circle(fig=False)

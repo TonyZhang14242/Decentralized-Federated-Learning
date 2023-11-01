@@ -1,4 +1,5 @@
 import random
+import sys
 
 import torch
 
@@ -30,7 +31,8 @@ if __name__ == '__main__':
         torch.save(w, 'weight.pt')
         print(f'Train complete in {time.time() - start_time} seconds')
         client_net.send_file(server, port, args.client_no)
-        time.sleep(1)
+        sys.stdout.flush()
+        time.sleep(0.5)
         # train_acc, test_acc = fed.test()
         # print(f'Epoch: {local_epoch}, loss: {local_epoch}')
         # with open(f'./save/peer_{args.client_no}_time{args.time}_{args.pick}_{args.topology}.txt', 'w') as f:

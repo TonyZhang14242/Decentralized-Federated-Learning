@@ -5,7 +5,7 @@ import torch
 
 class SimpleData(Dataset):
     def __init__(self, path):
-        self.data = np.loadtxt(path)
+        self.data = np.load(path)['data']
 
     def __len__(self):
         return len(self.data)

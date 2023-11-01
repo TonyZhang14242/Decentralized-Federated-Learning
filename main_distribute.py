@@ -32,8 +32,8 @@ class FedClient:
         else:
             print('Unknown dataset')
             exit(0)
-        self.datasets_train = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(states)]
-        self.datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(states)]
+        self.datasets_train = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
+        self.datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
         self.args = args

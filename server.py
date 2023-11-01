@@ -1,4 +1,5 @@
 import datetime
+import sys
 import time
 import os
 
@@ -14,23 +15,21 @@ from torchvision import datasets, transforms
 from models.datasets import SimpleData
 import matplotlib.pyplot as plt
 from markov_chain import generate_markov_chain
+from utils.logger import Logger
 
 
 async def main(cur_loop):
     global net
     global datasets_test
     global acc_list_all
-    now = datetime.datetime.now()
+
     start_time = time.time()
     listen_task = cur_loop.create_task(listen(args.clients))
     # ping_task = cur_loop.create_task(ping())
     # await cur_loop.run_in_executor(None, slow_task)
     acc = []
     seq = generate_markov_chain(args.markov_pattern, args.markov_prob, states, args.markov_len)
-    with open('./save/seq_{}_{}_{}_{}'
-              '_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt'.format(args.dataset, args.markov_pattern, args.markov_prob,
-                                                          args.markov_len, now.month, now.day, now.hour, now.minute),
-              'w') as f:
+    with open(f'./save/{folder}/seq.txt', 'w') as f:
         f.write(str(seq[0]))
         seq_str = str(seq[0])
         for i in range(1, len(seq)):
@@ -44,6 +43,7 @@ async def main(cur_loop):
     #     print("Sequence: ", seq)
     cid = 0
     while True:
+        logger.flush()
         await asyncio.sleep(1)
         # time.sleep(1)
         if get_received_numbers() == args.clients:
@@ -60,6 +60,9 @@ async def main(cur_loop):
                 acc.append(acc_test_next)
             else:
                 break
+            np.savetxt(
+                f'./save/{folder}/server_test_acc.txt',
+                np.array(acc))
             cid += 1
     plot_acc(acc, now, 'test')
     await asyncio.sleep(1)
@@ -80,13 +83,9 @@ def plot_acc(acc, now, name):
     plt.plot(range(len(acc)), acc)
     plt.ylabel(f'{name}_acc')
     plt.savefig(
-        './save/server_{}_{}_{}_{}_{}'
-        '_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(name, args.dataset, args.markov_pattern, args.markov_prob,
-                                                    args.markov_len, now.month, now.day, now.hour, now.minute))
+        f'./save/{folder}/server_{name}_acc.png')
     np.savetxt(
-        './save/server_{}_{}_{}_{}_{}'
-        '_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt'.format(name, args.dataset, args.markov_pattern, args.markov_prob,
-                                                    args.markov_len, now.month, now.day, now.hour, now.minute),
+        f'./save/{folder}/server_{name}_acc.txt',
         np.array(acc))
 
 
@@ -114,8 +113,14 @@ if __name__ == '__main__':
         states = 2
     else:
         exit(0)
+    now = datetime.datetime.now()
+    folder = '{}_{}_{}_{}_{:0>2}{:0>2}_{:0>2}{:0>2}'.format(args.dataset, args.markov_pattern, args.markov_prob,
+                                                            args.markov_len, now.month, now.day, now.hour, now.minute)
+    os.makedirs(f'./save/{folder}')
+    logger = Logger(f'./save/{folder}/server.log')
+    sys.stdout = logger
     args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
-    datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(states)]
+    datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
     if not os.path.exists('./clients'):
         os.makedirs('./clients')
     if not os.path.exists('./save'):
