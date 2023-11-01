@@ -6,13 +6,14 @@ import numpy as np
 import torch
 import asyncio
 from utils.server_options import args_parser
-from connection.tcp_server import listen, inc_eps, get_received_numbers, acc_list_all
+from connection.tcp_server import listen, inc_eps, get_received_numbers, acc_list_all, set_seq
 from models.Fed import FedAvg
 from models.Nets import CNNMnist, MLP
 from models.test import test_img
 from torchvision import datasets, transforms
 from models.datasets import SimpleData
 import matplotlib.pyplot as plt
+from markov_chain import generate_markov_chain
 
 
 async def main(cur_loop):
@@ -25,11 +26,22 @@ async def main(cur_loop):
     # ping_task = cur_loop.create_task(ping())
     # await cur_loop.run_in_executor(None, slow_task)
     acc = []
-    with open('seq.txt') as f:
-        seq_str = f.read()
-        seq_str = seq_str.split(',')
-        seq = [int(_) for _ in seq_str]
-        print("Sequence: ", seq)
+    seq = generate_markov_chain(args.markov_pattern, args.markov_prob, states, args.markov_len)
+    with open('./save/seq_{}_{}_{}_{}'
+              '_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt'.format(args.dataset, args.markov_pattern, args.markov_prob,
+                                                          args.markov_len, now.month, now.day, now.hour, now.minute),
+              'w') as f:
+        f.write(str(seq[0]))
+        seq_str = str(seq[0])
+        for i in range(1, len(seq)):
+            f.write(f',{seq[i]}')
+            seq_str += f',{seq[i]}'
+    set_seq(seq_str)
+    # with open('seq.txt') as f:
+    #     seq_str = f.read()
+    #     seq_str = seq_str.split(',')
+    #     seq = [int(_) for _ in seq_str]
+    #     print("Sequence: ", seq)
     cid = 0
     while True:
         await asyncio.sleep(1)
@@ -40,7 +52,6 @@ async def main(cur_loop):
             print(f"testing in current concept: {seq[cid]}")
             acc_test_cur, loss_test_cur = await cur_loop.run_in_executor(None, test_img, net,
                                                                          datasets_test[seq[cid]], args)
-            # acc_test_cur, loss_test_cur = test_img(net, datasets_test[seq[cid]], args)
             acc.append(acc_test_cur)
             if cid < len(seq) - 1:
                 print(f"testing in next concept: {seq[cid + 1]}")
@@ -60,6 +71,7 @@ async def main(cur_loop):
     avg_acc /= args.clients
     plot_acc(avg_acc, now, 'train_average')
     print(f'Total time: {time.time() - start_time} seconds')
+    print(f'Average test acc: {sum(acc) / len(acc)}')
     listen_task.cancel()
 
 
@@ -68,9 +80,14 @@ def plot_acc(acc, now, name):
     plt.plot(range(len(acc)), acc)
     plt.ylabel(f'{name}_acc')
     plt.savefig(
-        './save/server_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(name, now.month, now.day, now.hour, now.minute))
-    with open('./save/server_{}_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt', 'w') as f:
-        f.write(str(acc))
+        './save/server_{}_{}_{}_{}_{}'
+        '_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.png'.format(name, args.dataset, args.markov_pattern, args.markov_prob,
+                                                    args.markov_len, now.month, now.day, now.hour, now.minute))
+    np.savetxt(
+        './save/server_{}_{}_{}_{}_{}'
+        '_{:0>2}{:0>2}_{:0>2}{:0>2}_acc.txt'.format(name, args.dataset, args.markov_pattern, args.markov_prob,
+                                                    args.markov_len, now.month, now.day, now.hour, now.minute),
+        np.array(acc))
 
 
 def client_avg():
@@ -88,16 +105,17 @@ if __name__ == '__main__':
     args = args_parser()
     if args.dataset == 'mnist':
         net = CNNMnist()
+        states = 4
     elif args.dataset == 'circle':
         net = MLP(2, 10, 2)
+        states = 10
     elif args.dataset == 'sine':
         net = MLP(2, 10, 2)
-    elif args.dataset == 'sea':
-        net = MLP(3, 10, 2)
+        states = 2
     else:
         exit(0)
     args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
-    datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(args.concepts)]
+    datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(states)]
     if not os.path.exists('./clients'):
         os.makedirs('./clients')
     if not os.path.exists('./save'):

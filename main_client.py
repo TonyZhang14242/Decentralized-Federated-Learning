@@ -16,11 +16,13 @@ if __name__ == '__main__':
     server = config['server']['addr']
     port = int(config['server']['port'])
     seq = client_net.request_seq(server, port)
+    print(f'seq: {seq}')
     fed = main_distribute.FedClient(args, seq)
     if not os.path.exists('./save'):
         os.makedirs('./save')
     for cid in range(len(seq)):
         client_net.request_weight(server, port, cid)  # receive and wait
+        time.sleep(0.5)
         w = torch.load('weight.pt')
         print('train')
         start_time = time.time()

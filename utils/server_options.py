@@ -10,6 +10,7 @@ def args_parser():
     parser.add_argument('--verbose', action='store_true', help='verbose print')
     parser.add_argument('--dataset', type=str, default='mnist', help="name of dataset")
     parser.add_argument('--markov_pattern', type=str, default='periodic', help='pattern of drift chain')
-    parser.add_argument('--concepts', type=int, default=1, help='concept numbers')
+    parser.add_argument('--markov_prob', type=float, default=0.5)
+    parser.add_argument('--markov_len', type=int, default=10)
     args = parser.parse_args()
     return args

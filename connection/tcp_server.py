@@ -3,12 +3,13 @@ import socket
 import time
 import asyncio
 from asyncio import StreamReader, StreamWriter
-from . import acc_list_all
 import numpy as np
 
 eps = 0
 received_clients = np.zeros(1)
 bk = '\r\n'.encode()
+seq = ''
+acc_list_all = []
 
 
 def inc_eps():
@@ -21,6 +22,11 @@ def inc_eps():
 def get_received_numbers():
     global received_clients
     return np.sum(received_clients)
+
+
+def set_seq(seq_str):
+    global seq
+    seq = seq_str
 
 
 async def handle(reader: StreamReader, writer: StreamWriter):
@@ -76,12 +82,7 @@ async def handle(reader: StreamReader, writer: StreamWriter):
             # print(rng, message)
             message = message[len('REQUEST_SEQ'.encode()):]
             writer.write("SEQ_START\r\n".encode())
-            with open('./seq.txt', 'rb') as f:  # file directory here
-                while True:
-                    b = f.read(1024)
-                    if len(b) == 0:
-                        break
-                    writer.write(b)
+            writer.write(seq.encode())
             writer.write("SEQ_END\r\n".encode())
             await writer.drain()
             writer.close()

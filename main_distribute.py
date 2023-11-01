@@ -26,14 +26,18 @@ class FedClient:
     def __init__(self, args, seq):
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         # self.dataset_train = MnistPart('./data/', train=True, transform=trans_mnist)
-        self.datasets_train = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(args.concepts)]
-        self.datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(args.concepts)]
+        if args.dataset == 'circle':
+            self.net_glob = MLP(2, 10, 2)
+            states = 10
+        else:
+            print('Unknown dataset')
+            exit(0)
+        self.datasets_train = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(states)]
+        self.datasets_test = [SimpleData(f'./data/circle/test_{i}.txt') for i in range(states)]
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
         self.args = args
         self.net_glob = MLP(2, 10, 2)
-        if args.dataset == 'circle':
-            self.net_glob = MLP(2, 10, 2)
         self.net_glob.train()
         self.loss_train = []
         self.acc_train = []

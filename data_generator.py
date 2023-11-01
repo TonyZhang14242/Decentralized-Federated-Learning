@@ -31,9 +31,9 @@ def circle(fig=False):
     #     np.savetxt(f'./data/circle/train_{i}.txt', train[i])
     #     np.savetxt(f'./data/circle/test_{i}.txt', test[i])
     if fig:
-        plt.figure(figsize=(10, 100))
+        plt.figure(figsize=(50, 20))
         for i in range(1, 11):
-            axes = plt.subplot(10, 1, i)
+            axes = plt.subplot(2, 5, i)
             g = train[i - 1]
             # print(g[1] == 0)
             plt.scatter(g[np.where(g[:, 2] == 0)[0]][:, 0], g[np.where(g[:, 2] == 0)[0]][:, 1], marker='o',
@@ -42,7 +42,8 @@ def circle(fig=False):
                         color='blue', s=1)
             axes.set_aspect('equal', adjustable='box')
             # axes.add_artist(plt.Circle((centers[i-1][0], centers[i-1][1]), 0.1, fill=False))
-        plt.show()
+        plt.savefig('circle.jpg')
+        # plt.show()
 
 
 def gen_sine(count):
