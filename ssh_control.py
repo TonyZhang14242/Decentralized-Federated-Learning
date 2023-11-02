@@ -1,4 +1,6 @@
 import asyncio
+import os.path
+
 import asyncssh
 import sys
 import datetime
@@ -23,13 +25,19 @@ async def run_client(device_id, host, command):
 
 
 async def run_server(command):
-    sys.argv = [sys.argv[0], *command.split(' ')]
-    await asyncio.get_event_loop().run_in_executor(None, exec_server)
-    print('Task server complete')
-
-
-def exec_server():
-    exec(open('./server.py').read())
+    async with asyncssh.connect('127.0.0.1', username='sustech', password='tangming123', known_hosts=None) as conn:
+        savedir = './out/server/{:0>2}{:0>2}_{:0>2}{:0>2}.log'.format(now.month, now.day, now.hour, now.minute)
+        print('server started')
+        result = await conn.run(command, stdout=savedir)
+        if isinstance(result, Exception):
+            print('Task server failed: %s' % str(result))
+        elif result.exit_status != 0:
+            print('Task server exited with status %s:' % result.exit_status)
+            print(result.stderr, end='')
+        else:
+            print('Task server succeeded:')
+            print(result.stdout, end='')
+        return result
 
 
 async def run_multiple_clients(clients, client_cmd, server_cmd) -> None:
@@ -42,18 +50,24 @@ async def run_multiple_clients(clients, client_cmd, server_cmd) -> None:
 
 if __name__ == '__main__':
     ls = []
+    if not os.path.exists('./out'):
+        os.makedirs('./out')
+    for i in range(10):
+        if not os.path.exists(f'./out/{i}'):
+            os.makedirs(f'./out/{i}')
+    if not os.path.exists('./out/server'):
+        os.makedirs('./out/server')
     with open('clients.txt', 'r') as f:
         line = f.readline()
         while len(line) > 0:
             ls.append(line[:-1])
             line = f.readline()
-    client_command = 'cd ~/Decentralized-Federated-Learning/; python ./main_client.py --client_no {} --dataset circle --local_ep 3 --concept_ep 4 --sample_num 2000'
-    # server_command = 'cd ~/Decentralized-Federated-Learning/; /opt/conda/bin/python ./server.py --clients 10 --verbose --dataset circle --markov_pattern periodic --markov_prob 0.{} --markov_len 100 --concept_ep 4 --detail'
-    server_args = '--clients 10 --verbose --dataset circle --markov_pattern periodic --markov_prob 0.{} --markov_len 100 --concept_ep 4 --detail'
+    client_command = 'cd ~/Decentralized-Federated-Learning/; python ./main_client.py --client_no {} --dataset circle --local_ep 3 --concept_ep 8 --lr 0.001'
+    server_command = 'cd ~/Decentralized-Federated-Learning/; /home/sustech/miniconda3/envs/torch/bin/python ./server.py --clients 10 --verbose --dataset circle --markov_pattern periodic --markov_prob 0.{} --markov_len 50 --local_ep 3 --lr 0.001 --concept_ep 8 --detail'
     try:
-        for i in range(3, 10):
+        for i in range(1, 10):
             # print(server_command.format(i))
-            asyncio.get_event_loop().run_until_complete(run_multiple_clients(ls, client_command, server_args.format(i)))
+            asyncio.get_event_loop().run_until_complete(run_multiple_clients(ls, client_command, server_command.format(i)))
             print(f'prob 0.{i} complete')
     except (OSError, asyncssh.Error) as exc:
         sys.exit('SSH connection failed: ' + str(exc))
