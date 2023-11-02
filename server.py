@@ -43,7 +43,7 @@ async def main(cur_loop):
     #     seq_str = f.read()
     #     seq_str = seq_str.split(',')
     #     seq = [int(_) for _ in seq_str]
-    #     print("Sequence: ", seq)
+    print("Sequence: ", seq)
     cid = 0
     concept_ep = 0
     while True:
@@ -51,7 +51,7 @@ async def main(cur_loop):
         await asyncio.sleep(0.5)
         # time.sleep(1)
         if get_received_numbers() == args.clients:
-            with open('/received.txt', 'w') as f:
+            with open('./received.txt', 'w') as f:
                 pass
             w = await cur_loop.run_in_executor(None, client_avg)
             net.load_state_dict(w)
@@ -135,6 +135,11 @@ if __name__ == '__main__':
     print(f'\t local_epoch: {args.local_ep}')
     print(f'\t concept_ep: {args.concept_ep}')
     print(f'\t learning rate: {args.lr}')
+    print(f'\t dataset: {args.dataset}')
+    print(f'\t markov pattern: {args.markov_pattern}')
+    print(f'\t markov probability: {args.markov_prob}')
+    print(f'\t time slots: {args.markov_len}')
+    print(f'\t seed: {args.seed}')
     print()
     if args.dataset == 'mnist':
         net = CNNMnist()
