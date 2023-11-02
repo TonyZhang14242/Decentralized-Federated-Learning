@@ -30,7 +30,7 @@ def gen_circle(series, radius, count):
 def circle(fig=False):
     centers = np.linspace((0.1, 0.5), (1, 0.5), 10)
     train = gen_circle(centers, 0.1, 10000)
-    test = gen_circle(centers, 0.1, 1000)
+    test = gen_circle(centers, 0.1, 3000)
     if not os.path.exists('./data/circle'):
         os.makedirs('./data/circle')
     save_npz('circle', train, test)

@@ -13,6 +13,9 @@ def args_parser():
     parser.add_argument('--markov_prob', type=float, default=0.5)
     parser.add_argument('--markov_len', type=int, default=10)
     parser.add_argument('--concept_ep', type=int, default=5)
+    parser.add_argument('--local_ep', type=int, default=5, help='client local epoch, only for show')
+    parser.add_argument('--lr', type=float, default=0.01, help="only for show")
     parser.add_argument('--detail', action='store_true')
+    parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
     args = parser.parse_args()
     return args

@@ -9,9 +9,13 @@ import connection.tcp_client as client_net
 import os
 import configparser
 import time
+import numpy as np
 
 if __name__ == '__main__':
     args = args_parser()
+    np.random.seed(args.seed)
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
     config = configparser.ConfigParser()
     config.read('client_config.ini')
     server = config['server']['addr']

@@ -32,7 +32,7 @@ class FedClient:
         else:
             print('Unknown dataset')
             exit(0)
-        self.datasets_train = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
+        self.datasets_train = [SimpleData(f'./data/circle/train_{i}_self.npz') for i in range(states)]
         self.datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
@@ -41,14 +41,14 @@ class FedClient:
         self.net_glob.train()
         self.loss_train = []
         self.acc_train = []
-        self.sample = random_split(self.datasets_train[0], args.sample_num)
+        # self.sample = random_split(self.datasets_train[0], args.sample_num)
         self.now = datetime.datetime.now()
         self.seq = seq
 
     def iter(self, iter_num, weight):
         self.net_glob.load_state_dict(weight)
         print('training')
-        local = LocalUpdate(args=self.args, dataset=self.datasets_train[self.seq[iter_num]], idxs=self.sample)
+        local = LocalUpdate(args=self.args, dataset=self.datasets_train[self.seq[iter_num]])
         w, loss, acc = local.train(self.net_glob.to(self.args.device))
         for eps in range(self.args.local_ep - 1):
             w, loss, acc = local.train(self.net_glob.to(self.args.device))

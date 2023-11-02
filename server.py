@@ -2,8 +2,10 @@ import datetime
 import sys
 import time
 import os
+import random
 
 import numpy as np
+import numpy.random
 import torch
 import asyncio
 from utils.server_options import args_parser
@@ -16,7 +18,6 @@ from models.datasets import SimpleData
 import matplotlib.pyplot as plt
 from markov_chain import generate_markov_chain
 from utils.logger import Logger
-
 
 async def main(cur_loop):
     global net
@@ -50,6 +51,8 @@ async def main(cur_loop):
         await asyncio.sleep(0.5)
         # time.sleep(1)
         if get_received_numbers() == args.clients:
+            with open('/received.txt', 'w') as f:
+                pass
             w = await cur_loop.run_in_executor(None, client_avg)
             net.load_state_dict(w)
             if concept_ep < args.concept_ep - 1:
@@ -96,6 +99,7 @@ async def main(cur_loop):
     plot_acc(avg_acc, now, 'train_acc_average')
     print(f'Total time: {time.time() - start_time} seconds')
     print(f'Average test acc: {sum(acc) / len(acc)}')
+    print(f'Average loss: {sum(loss) / len(loss)}')
     listen_task.cancel()
 
 
@@ -124,12 +128,20 @@ def client_avg():
 
 if __name__ == '__main__':
     args = args_parser()
+    numpy.random.seed(args.seed)
+    random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    print('Arguments: ')
+    print(f'\t local_epoch: {args.local_ep}')
+    print(f'\t concept_ep: {args.concept_ep}')
+    print(f'\t learning rate: {args.lr}')
+    print()
     if args.dataset == 'mnist':
         net = CNNMnist()
         states = 4
     elif args.dataset == 'circle':
         net = MLP(2, 10, 2)
-        states = 10
+        states = 5
     elif args.dataset == 'sine':
         net = MLP(2, 10, 2)
         states = 2
