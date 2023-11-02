@@ -8,7 +8,7 @@ if __name__ == '__main__':
     sample_num = int(sys.argv[2])
     files = os.listdir(base_dir)
     for file in files:
-        if file.startswith('train'):
+        if file.startswith('train') and not file.__contains__('_self'):
             new_file = file.split('.')[0] + '_self'
             print(new_file)
             data = np.load(os.path.join(base_dir, file))['data']
