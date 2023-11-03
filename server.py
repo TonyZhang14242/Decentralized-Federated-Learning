@@ -131,16 +131,6 @@ if __name__ == '__main__':
     numpy.random.seed(args.seed)
     random.seed(args.seed)
     torch.manual_seed(args.seed)
-    print('Arguments: ')
-    print(f'\t local_epoch: {args.local_ep}')
-    print(f'\t concept_ep: {args.concept_ep}')
-    print(f'\t learning rate: {args.lr}')
-    print(f'\t dataset: {args.dataset}')
-    print(f'\t markov pattern: {args.markov_pattern}')
-    print(f'\t markov probability: {args.markov_prob}')
-    print(f'\t time slots: {args.markov_len}')
-    print(f'\t seed: {args.seed}')
-    print()
     if args.dataset == 'mnist':
         net = CNNMnist()
         states = 4
@@ -159,6 +149,16 @@ if __name__ == '__main__':
     os.makedirs(f'./save/{folder}')
     logger = Logger(f'./save/{folder}/server.log')
     sys.stdout = logger
+    print('Arguments: ')
+    print(f'\t local_epoch: {args.local_ep}')
+    print(f'\t concept_ep: {args.concept_ep}')
+    print(f'\t learning rate: {args.lr}')
+    print(f'\t dataset: {args.dataset}')
+    print(f'\t markov pattern: {args.markov_pattern}')
+    print(f'\t markov probability: {args.markov_prob}')
+    print(f'\t time slots: {args.markov_len}')
+    print(f'\t seed: {args.seed}')
+    print()
     args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
     datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
     if not os.path.exists('./clients'):
