@@ -5,8 +5,6 @@ import asyncssh
 import sys
 import datetime
 
-now = datetime.datetime.now()
-
 
 async def run_client(device_id, host, command):
     async with asyncssh.connect(host, username='ming', password='123', known_hosts=None) as conn:
@@ -67,6 +65,7 @@ if __name__ == '__main__':
     try:
         for i in range(1, 10):
             # print(server_command.format(i))
+            now = datetime.datetime.now()
             asyncio.get_event_loop().run_until_complete(run_multiple_clients(ls, client_command, server_command.format(i)))
             print(f'prob 0.{i} complete')
     except (OSError, asyncssh.Error) as exc:
