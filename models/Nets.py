@@ -22,9 +22,9 @@ class MLP(nn.Module):
         x = x.view(-1, self.dim_in)
         x = self.layer_input(x)
         x = self.dropout(x)
-        x = self.sigmoid(x)
+        x = self.relu(x)
         x = self.layer_hidden(x)
-        x = self.sigmoid(x)
+        x = self.relu(x)
         x = self.layer_out(x)
         return x
 
