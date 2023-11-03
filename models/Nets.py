@@ -24,7 +24,6 @@ class MLP(nn.Module):
         x = self.dropout(x)
         x = self.sigmoid(x)
         x = self.layer_hidden(x)
-        x = self.dropout(x)
         x = self.sigmoid(x)
         x = self.layer_out(x)
         return x
