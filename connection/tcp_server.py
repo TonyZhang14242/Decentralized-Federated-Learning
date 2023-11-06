@@ -104,7 +104,7 @@ async def handle(reader: StreamReader, writer: StreamWriter):
                 writer.write("FILE_END\r\n".encode())
             else:
                 writer.write('WAIT\r\n'.encode())
-                print(f'Requesting {requesting} but eps is {eps}, send WAIT')
+                # print(f'Requesting {requesting} but eps is {eps}, send WAIT')
             await writer.drain()
             writer.close()
             break

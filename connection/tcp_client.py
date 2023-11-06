@@ -65,6 +65,7 @@ def send_acc(addr, port, client_id, acc):
 
 def request_weight(addr, port, eps):
     def request_weight_inter(client, eps):
+        print(f'requesting weight of eps {eps}')
         client.send(f"REQUEST_WEIGHT_{eps}\r\n".encode())
         # print(f"REQUEST_WEIGHT_{eps}")
         time_start = time.time()
