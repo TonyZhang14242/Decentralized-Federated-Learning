@@ -138,7 +138,7 @@ if __name__ == '__main__':
         net = MLP(2, 10, 2)
         states = 5
     elif args.dataset == 'sine':
-        net = MLP(2, 10, 2)
+        net = MLP(2, 5, 2)
         states = 2
     else:
         exit(0)

@@ -10,6 +10,17 @@ def save_npz(name, train, test):
         np.savez_compressed(f'./data/{name}/test_{i}.npz', data=test[i])
 
 
+def plot(data, row, col, idx):
+    axes = plt.subplot(row, col, idx)
+    g = data[idx - 1]
+    # print(g[1] == 0)
+    plt.scatter(g[np.where(g[:, 2] == 0)[0]][:, 0], g[np.where(g[:, 2] == 0)[0]][:, 1], marker='o',
+                color='red', s=1)
+    plt.scatter(g[np.where(g[:, 2] == 1)[0]][:, 0], g[np.where(g[:, 2] == 1)[0]][:, 1], marker='o',
+                color='blue', s=1)
+    axes.set_aspect('equal', adjustable='box')
+
+
 def gen_circle(series, radius, count):
     result = []
     half_count_plus = int(count / 2 + count / 20)
@@ -33,21 +44,13 @@ def circle(fig=False):
     test = gen_circle(centers, 0.1, 3000)
     if not os.path.exists('./data/circle'):
         os.makedirs('./data/circle')
-    save_npz('circle', train, test)
+    # save_npz('circle', train, test)
     if fig:
         plt.figure(figsize=(50, 20))
         for i in range(1, 11):
-            axes = plt.subplot(2, 5, i)
-            g = train[i - 1]
-            # print(g[1] == 0)
-            plt.scatter(g[np.where(g[:, 2] == 0)[0]][:, 0], g[np.where(g[:, 2] == 0)[0]][:, 1], marker='o',
-                        color='red', s=1)
-            plt.scatter(g[np.where(g[:, 2] == 1)[0]][:, 0], g[np.where(g[:, 2] == 1)[0]][:, 1], marker='o',
-                        color='blue', s=1)
-            axes.set_aspect('equal', adjustable='box')
-            # axes.add_artist(plt.Circle((centers[i-1][0], centers[i-1][1]), 0.1, fill=False))
-        plt.savefig('circle.jpg')
-        # plt.show()
+            plot(train, 2, 5, i)
+        # plt.savefig('circle.jpg')
+        plt.show()
 
 
 def gen_sine1(count):
@@ -56,65 +59,103 @@ def gen_sine1(count):
     label = points[:, 1] < np.sin(points[:, 0])
     result.append(np.c_[points, label])
     points = np.random.random((count, 2))
-    points[:, 1] *= 2
-    points[:, 1] -= 1
-    points[:, 0] *= np.pi * 2
     label = points[:, 1] > np.sin(points[:, 0])
     result.append(np.c_[points, label])
     return result
 
 
-def sine(fig=False):
+def sine1(fig=False):
     train = gen_sine1(10000)
-    test = gen_sine1(1000)
-    if not os.path.exists('./data/sine'):
-        os.makedirs('./data/sine')
-    save_npz('sine', train, test)
+    test = gen_sine1(3000)
+    if not os.path.exists('./data/sine1'):
+        os.makedirs('./data/sine1')
+    save_npz('sine1', train, test)
     if fig:
         plt.figure(figsize=(20, 10))
         for i in range(1, 3):
-            axes = plt.subplot(1, 2, i)
-            g = train[i - 1]
-            plt.scatter(g[np.where(g[:, 2] == 0)[0]][:, 0], g[np.where(g[:, 2] == 0)[0]][:, 1], marker='o',
-                        color='red', s=2)
-            plt.scatter(g[np.where(g[:, 2] == 1)[0]][:, 0], g[np.where(g[:, 2] == 1)[0]][:, 1], marker='o',
-                        color='blue', s=2)
-            axes.set_aspect('equal', adjustable='box')
+            plot(train, 1, 2, i)
+        plt.savefig('sine1')
         plt.show()
 
 
-def gen_sea(series, count):
+def gen_sine2(count):
     result = []
-    for plane in series:
-        points = np.random.random((count, 3))
-        label = (points[:, 0] + points[:, 1] < plane).astype(np.int32)
-        result.append(np.c_[points, label])
+    points = np.random.random((count, 2))
+    points_x = points[:, 0] * (3 * np.pi)
+    label = points[:, 1] < (0.5 + 0.3 * np.sin(points_x))
+    result.append(np.c_[points, label])
+    points = np.random.random((count, 2))
+    points_x = points[:, 0] * (3 * np.pi)
+    label = points[:, 1] > (0.5 + 0.3 * np.sin(points_x))
+    result.append(np.c_[points, label])
     return result
 
 
-def sea(fig=False):
-    planes = np.linspace(0.2, 1.8, 10)
-    train = gen_sea(planes, 10000)
-    test = gen_sea(planes, 1000)
-    if not os.path.exists('./data/sea'):
-        os.makedirs('./data/sea')
-    for i in range(len(train)):
-        np.savetxt(f'./data/sea/train_{i}.txt', train[i])
-        np.savetxt(f'./data/sea/test_{i}.txt', test[i])
+def sine2(fig=False):
+    train = gen_sine2(10000)
+    test = gen_sine2(3000)
+    if not os.path.exists('./data/sine2'):
+        os.makedirs('./data/sine2')
+    save_npz('sine2', train, test)
     if fig:
-        plt.figure(figsize=(30, 3))
-        for i in range(1, 11):
-            plt.subplot(1, 10, i)
-            g = test[i - 1]
-            # print(g[1] == 0)
-            plt.scatter(g[np.where(g[:, 3] == 0)[0]][:, 0], g[np.where(g[:, 3] == 0)[0]][:, 1], marker='o',
-                        color='red', s=2)
-            plt.scatter(g[np.where(g[:, 3] == 1)[0]][:, 0], g[np.where(g[:, 3] == 1)[0]][:, 1], marker='o',
-                        color='blue', s=2)
+        plt.figure(figsize=(20, 10))
+        for i in range(1, 3):
+            plot(train, 1, 2, i)
+        plt.savefig('sine2')
         plt.show()
+
+
+def gen_sinirrel(sine):
+    irrel = []
+    for data in sine:
+        rd = np.random.random((data.shape[0], 2))
+        data = np.c_[data[:, 0:2], rd, data[:, 2]]
+        irrel.append(data)
+    return irrel
+
+
+def sinirrel1(fig=False):
+    train = gen_sinirrel(gen_sine1(10000))
+    test = gen_sinirrel(gen_sine1(3000))
+    if not os.path.exists('./data/sinirrel1'):
+        os.makedirs('./data/sinirrel1')
+    save_npz('sinirrel1', train, test)
+
+
+def sinirrel2(fig=False):
+    train = gen_sinirrel(gen_sine2(10000))
+    test = gen_sinirrel(gen_sine2(3000))
+    if not os.path.exists('./data/sinirrel2'):
+        os.makedirs('./data/sinirrel2')
+    save_npz('sinirrel2', train, test)
+
+
+def gauss_2d(count, c1, c2, div):
+    dim1 = np.random.normal(c1, div, count)
+    dim2 = np.random.normal(c2, div, count)
+    return np.c_[dim1, dim2]
+
+def gen_gauss(count):
+    half_cnt = int(count / 2)
+    cov = np.array([[1, 0], [0, 1]])
+    cent1 = gauss_2d(half_cnt, 0, 0, 1)
+    cent2 = gauss_2d(half_cnt, 2, 0, 4)
+    # cent1 = np.random.multivariate_normal((0, 0), cov / 2, half_cnt)
+    # cent2 = np.random.multivariate_normal((2, 0), cov, half_cnt)
+    fig = plt.figure()
+    ax = plt.gca()
+    ax.set_aspect('equal', adjustable='box')
+    plt.scatter(cent2[:, 0], cent2[:, 1], marker='o', color='blue', s=1)
+    plt.scatter(cent1[:, 0], cent1[:, 1], marker='o', color='red', s=1)
+    plt.show()
+
+
+def gen_stagger(count):
+    np.random.randint()
 
 
 if __name__ == '__main__':
     if not os.path.exists('./data'):
         os.makedirs('./data')
-    circle(fig=False)
+    gen_gauss(10000)
+    # sinirrel2(fig=True)

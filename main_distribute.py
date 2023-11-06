@@ -37,7 +37,6 @@ class FedClient:
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
         self.args = args
-        self.net_glob = MLP(2, 10, 2)
         self.net_glob.train()
         self.loss_train = []
         self.acc_train = []
