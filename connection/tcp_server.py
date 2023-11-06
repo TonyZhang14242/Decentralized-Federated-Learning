@@ -45,7 +45,7 @@ async def handle(reader: StreamReader, writer: StreamWriter):
         if recv_file:
             if message.__contains__('FILE_END\r\n'.encode()):
                 with open('./received.txt', "a") as f:
-                    f.write(f'Received weight of client {client_id}')
+                    f.write(f'Received weight of client {client_id}\n')
                 file = message[:message.find("FILE_END\r\n".encode())]
                 with open(f'./clients/client_{client_id}.pt', 'wb') as f:  # file directory here
                     f.write(file)
