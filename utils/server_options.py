@@ -11,6 +11,7 @@ def args_parser():
     parser.add_argument('--dataset', type=str, default='mnist', help="name of dataset")
     parser.add_argument('--markov_pattern', type=str, default='periodic', help='pattern of drift chain')
     parser.add_argument('--markov_prob', type=float, default=0.5)
+    parser.add_argument('--markov_states', type=int, default=1)
     parser.add_argument('--markov_len', type=int, default=10)
     parser.add_argument('--concept_ep', type=int, default=5)
     parser.add_argument('--local_ep', type=int, default=5, help='client local epoch, only for show')

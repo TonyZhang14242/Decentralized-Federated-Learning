@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 from markov_chain import generate_markov_chain
 from utils.logger import Logger
 
+
 async def main(cur_loop):
     global net
     global datasets_test
@@ -31,7 +32,7 @@ async def main(cur_loop):
     acc = []
     loss = []
     acc_detail = []
-    seq = generate_markov_chain(args.markov_pattern, args.markov_prob, states, args.markov_len)
+    seq = generate_markov_chain(args.markov_pattern, args.markov_prob, args.markov_states, args.markov_len)
     with open(f'./save/{folder}/seq.txt', 'w') as f:
         f.write(str(seq[0]))
         seq_str = str(seq[0])
@@ -136,7 +137,7 @@ if __name__ == '__main__':
         states = 4
     elif args.dataset == 'circle':
         net = MLP(2, 5, 2)
-        states = 5
+        states = 10
     elif args.dataset == 'sine':
         net = MLP(2, 5, 2)
         states = 2
@@ -156,6 +157,7 @@ if __name__ == '__main__':
     print(f'\t dataset: {args.dataset}')
     print(f'\t markov pattern: {args.markov_pattern}')
     print(f'\t markov probability: {args.markov_prob}')
+    print(f'\t markov states: {args.markov_states}')
     print(f'\t time slots: {args.markov_len}')
     print(f'\t seed: {args.seed}')
     print()
