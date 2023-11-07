@@ -35,10 +35,10 @@ def generate_markov_chain(pattern_name, transition_probability, number_of_states
 
 
 if __name__ == '__main__':
-    mc = generate_markov_chain(pattern_name='periodic', transition_probability=0.5, number_of_states=10,
+    mc = generate_markov_chain(pattern_name='gradual', transition_probability=0.5, number_of_states=10,
                                number_of_time_slot=20)
     print(mc)
-    with open('./seq.txt', 'w') as f:
-        f.write(str(mc[0]))
-        for i in range(1, len(mc)):
-            f.write(f',{mc[i]}')
+    # with open('./seq.txt', 'w') as f:
+    #     f.write(str(mc[0]))
+    #     for i in range(1, len(mc)):
+    #         f.write(f',{mc[i]}')
