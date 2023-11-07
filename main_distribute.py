@@ -27,7 +27,7 @@ class FedClient:
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         # self.dataset_train = MnistPart('./data/', train=True, transform=trans_mnist)
         if args.dataset == 'circle':
-            self.net_glob = MLP(2, 5, 2)
+            self.net_glob = MLP(2, 10, 2)
             states = 10
         else:
             print('Unknown dataset')

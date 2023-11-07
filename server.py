@@ -136,7 +136,7 @@ if __name__ == '__main__':
         net = CNNMnist()
         states = 4
     elif args.dataset == 'circle':
-        net = MLP(2, 5, 2)
+        net = MLP(2, 10, 2)
         states = 10
     elif args.dataset == 'sine':
         net = MLP(2, 5, 2)
