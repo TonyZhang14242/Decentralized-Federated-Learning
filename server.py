@@ -35,7 +35,7 @@ async def main(cur_loop):
     seq = generate_markov_chain(args.markov_pattern, args.markov_prob, args.markov_states, args.markov_len)
     if args.markov_pattern == 'random':
         if args.markov_states == 2:
-            seq = [_ * 4 for _ in seq]
+            seq = [_ * 2 for _ in seq]
         elif args.markov_states == 3:
             seq = [_ * 2 for _ in seq]
     with open(f'./save/{folder}/seq.txt', 'w') as f:
