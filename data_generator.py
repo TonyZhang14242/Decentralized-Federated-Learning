@@ -53,6 +53,39 @@ def circle(fig=False):
         plt.show()
 
 
+def gen_circle2(series, radius, count):
+    result = []
+    cnt_in = int(count * 0.407)
+    cnt_out = count - cnt_in
+    for center in series:
+        angle = np.random.random(cnt_in) * 2 * np.pi
+        length = np.sqrt(np.random.random(cnt_in) * (radius ** 2))
+        inside = np.c_[length * np.cos(angle), length * np.sin(angle)] + np.tile(center, (cnt_in, 1))
+        inside = np.c_[inside, np.ones(cnt_in)]
+        points = np.random.random((cnt_out, 2))
+        points[:, 0] *= 0.2
+        points[:, 0] += center[0] - 0.1
+        distance = points - np.tile(center, (cnt_out, 1))
+        label = (distance[:, 0] ** 2 + distance[:, 1] ** 2 < radius ** 2).astype(np.int32)
+        result.append(np.r_[inside, np.c_[points, label]])
+    return result
+
+
+def circle2(fig=False):
+    centers = np.linspace((0.1, 0.5), (1, 0.5), 10)
+    train = gen_circle2(centers, 0.1, 10000)
+    test = gen_circle2(centers, 0.1, 3000)
+    if not os.path.exists('./data/circle2'):
+        os.makedirs('./data/circle2')
+    save_npz('circle2', train, test)
+    if fig:
+        plt.figure(figsize=(50, 20))
+        for i in range(1, 11):
+            plot(train, 2, 5, i)
+        plt.savefig('circle2.jpg')
+        plt.show()
+
+
 def gen_sine1(count):
     result = []
     points = np.random.random((count, 2))
@@ -158,5 +191,5 @@ def gen_stagger(count):
 if __name__ == '__main__':
     if not os.path.exists('./data'):
         os.makedirs('./data')
-    gen_gauss(10000)
-    # sinirrel2(fig=True)
+    # gen_gauss(10000)
+    circle2(fig=True)
