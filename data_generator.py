@@ -135,6 +135,7 @@ def gauss_2d(count, c1, c2, div):
     dim2 = np.random.normal(c2, div, count)
     return np.c_[dim1, dim2]
 
+
 def gen_gauss(count):
     half_cnt = int(count / 2)
     cov = np.array([[1, 0], [0, 1]])
