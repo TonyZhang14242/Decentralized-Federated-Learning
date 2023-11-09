@@ -33,7 +33,7 @@ async def main(cur_loop):
     loss = []
     acc_detail = []
     seq = generate_markov_chain(args.markov_pattern, args.markov_prob, args.markov_states, args.markov_len)
-    seq = [_ * 2 for _ in seq]
+    # seq = [_ * 2 for _ in seq]
     with open(f'./save/{folder}/seq.txt', 'w') as f:
         f.write(str(seq[0]))
         seq_str = str(seq[0])
