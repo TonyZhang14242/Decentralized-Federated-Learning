@@ -33,11 +33,7 @@ async def main(cur_loop):
     loss = []
     acc_detail = []
     seq = generate_markov_chain(args.markov_pattern, args.markov_prob, args.markov_states, args.markov_len)
-    if args.markov_pattern == 'random':
-        if args.markov_states == 2:
-            seq = [_ * 2 for _ in seq]
-        elif args.markov_states == 3:
-            seq = [_ * 2 for _ in seq]
+    seq = [_ * args.seq_mul + args.seq_add for _ in seq]
     with open(f'./save/{folder}/seq.txt', 'w') as f:
         f.write(str(seq[0]))
         seq_str = str(seq[0])
@@ -163,6 +159,8 @@ if __name__ == '__main__':
     print(f'\t markov pattern: {args.markov_pattern}')
     print(f'\t markov probability: {args.markov_prob}')
     print(f'\t markov states: {args.markov_states}')
+    print(f'\t markov sequence multiply: {args.seq_mul}')
+    print(f'\t markov sequence addition: {args.seq_add}')
     print(f'\t time slots: {args.markov_len}')
     print(f'\t seed: {args.seed}')
     print()

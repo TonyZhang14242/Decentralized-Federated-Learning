@@ -18,5 +18,7 @@ def args_parser():
     parser.add_argument('--lr', type=float, default=0.01, help="only for show")
     parser.add_argument('--detail', action='store_true')
     parser.add_argument('--seed', type=int, default=1, help='random seed (default: 1)')
+    parser.add_argument('--seq_mul', type=int, default=1, help='multiply factor for markov chain')
+    parser.add_argument('--seq_add', type=int, default=0)
     args = parser.parse_args()
     return args
