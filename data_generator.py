@@ -2,6 +2,7 @@ import os.path
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import rcParams
 
 
 def save_npz(name, train, test):
@@ -47,9 +48,10 @@ def circle(fig=False):
     # save_npz('circle', train, test)
     if fig:
         plt.figure(figsize=(50, 20))
+        rcParams['font.size'] = 26
         for i in range(1, 11):
             plot(train, 2, 5, i)
-        # plt.savefig('circle.jpg')
+        plt.savefig('circle.pdf')
         plt.show()
 
 
@@ -192,4 +194,4 @@ if __name__ == '__main__':
     if not os.path.exists('./data'):
         os.makedirs('./data')
     # gen_gauss(10000)
-    circle2(fig=True)
+    circle(fig=True)

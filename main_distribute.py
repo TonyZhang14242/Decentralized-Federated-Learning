@@ -15,7 +15,7 @@ from models.Update import LocalUpdate
 from models.Nets import MLP, CNNMnist, CNNCifar
 from models.datasets import SimpleData
 from models.test import test_img
-from models.mnist_self import MnistPart
+from models.mnist_self import MnistSelf
 from utils.sampling import random_split
 
 matplotlib.use('Agg')
@@ -29,11 +29,19 @@ class FedClient:
         if args.dataset == 'circle':
             self.net_glob = MLP(2, 10, 2)
             states = 10
+            self.datasets_train = [SimpleData(f'./data/circle/train_{i}_self.npz') for i in range(states)]
+            self.datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
+        elif args.dataset == 'mnist':
+            self.net_glob = CNNMnist()
+            states = 4
+            self.datasets_test = [MnistSelf('./data/MNIST-Rotate', i, train=False, transform=trans_mnist) for i in
+                                  range(states)]
+            self.datasets_train = [MnistSelf('./data/MNIST-Rotate', i, train=True, transform=trans_mnist) for i in
+                                   range(states)]
         else:
             print('Unknown dataset')
             exit(0)
-        self.datasets_train = [SimpleData(f'./data/circle/train_{i}_self.npz') for i in range(states)]
-        self.datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
+
         args.device = torch.device(
             'cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
         self.args = args

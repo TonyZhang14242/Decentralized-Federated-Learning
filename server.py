@@ -14,6 +14,7 @@ from models.Fed import FedAvg
 from models.Nets import CNNMnist, MLP
 from models.test import test_img
 from torchvision import datasets, transforms
+from models.mnist_self import MnistSelf
 from models.datasets import SimpleData
 import matplotlib.pyplot as plt
 from markov_chain import generate_markov_chain
@@ -136,12 +137,12 @@ if __name__ == '__main__':
     if args.dataset == 'mnist':
         net = CNNMnist()
         states = 4
+        trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
+        datasets_test = [MnistSelf('./data/MNIST-Rotate', i, train=False, transform=trans_mnist) for i in range(states)]
     elif args.dataset == 'circle':
         net = MLP(2, 10, 2)
         states = 10
-    elif args.dataset == 'sine':
-        net = MLP(2, 5, 2)
-        states = 2
+        datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
     else:
         exit(0)
     now = datetime.datetime.now()
@@ -165,7 +166,7 @@ if __name__ == '__main__':
     print(f'\t seed: {args.seed}')
     print()
     args.device = torch.device('cuda:{}'.format(args.gpu) if torch.cuda.is_available() and args.gpu != -1 else 'cpu')
-    datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
+
     if not os.path.exists('./clients'):
         os.makedirs('./clients')
     if not os.path.exists('./save'):
