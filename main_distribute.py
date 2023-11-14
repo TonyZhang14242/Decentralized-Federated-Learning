@@ -30,6 +30,7 @@ class FedClient:
             self.net_glob = MLP(2, 10, 2)
             states = 10
             self.datasets_train = [SimpleData(f'./data/circle/train_{i}_self.npz') for i in range(states)]
+            print(len(self.datasets_train[0]))
             self.datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
         elif args.dataset == 'mnist':
             self.net_glob = CNNMnist()

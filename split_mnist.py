@@ -57,7 +57,8 @@ if __name__ == '__main__':
     choice = np.random.choice(60000, sample_num)
     labels = load_mnist_labels(os.path.join(base_dir, 'train-labels-idx1-ubyte'))
     labels_c = labels[choice]
-    save_labelset(f'train-labels-idx1-ubyte-self', labels_c, 0, sample_num)
+    print('train-labels-idx1-ubyte-self')
+    save_labelset(os.path.join(base_dir, 'train-labels-idx1-ubyte-self'), labels_c, 0, sample_num)
     for i in range(4):
         images = load_mnist_images(os.path.join(base_dir, f'train-images-idx3-ubyte-{i}'))
         images_c = images[choice, :, :]
