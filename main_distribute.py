@@ -39,6 +39,13 @@ class FedClient:
                                   range(states)]
             self.datasets_train = [MnistSelf('./data/MNIST-Rotate', i, train=True, transform=trans_mnist) for i in
                                    range(states)]
+        elif args.dataset == 'mnist-noniid':
+            self.net_glob = CNNMnist()
+            states = 4
+            self.datasets_test = [MnistSelf('./data/MNIST-Rotate', i, train=False, transform=trans_mnist) for i in
+                                  range(states)]
+            self.datasets_train = [MnistSelf('./data/MNIST-Rotate-Noniid', i, train=True, transform=trans_mnist) for i in
+                                   range(states)]
         else:
             print('Unknown dataset')
             exit(0)

@@ -1,7 +1,13 @@
+import os.path
+import random
+import sys
+
 import numpy as np
 from torchvision import datasets
 from torch.utils.data import ConcatDataset
 import matplotlib.pyplot as plt
+from split_mnist import load_mnist_labels, load_mnist_images, save_imgset, save_labelset
+from models.mnist_self import MnistSelf
 
 
 def dirichlet_split_noniid(train_labels, alpha, n_clients):
@@ -32,15 +38,19 @@ def dirichlet_split_noniid(train_labels, alpha, n_clients):
 
 n_clients = 10
 dirichlet_alpha = 1.0
-seed = 42
+seed = 1
 
 if __name__ == "__main__":
+    client_id = int(sys.argv[1])
     np.random.seed(seed)
-    train_data = datasets.MNIST(
-        root="./data", download=True, train=True)
-    test_data = datasets.MNIST(
-        root="./data", download=True, train=False)
+    random.seed(seed)
+    # train_data = datasets.MNIST(
+    #     root="./data", download=True, train=True)
+    # test_data = datasets.MNIST(
+    #     root="./data", download=True, train=False)
+    train_data_all = [MnistSelf('./data/MNIST-Rotate', i, train=True, complete=True) for i in range(4)]
 
+    train_data = train_data_all[0]
     classes = train_data.classes
     n_classes = len(classes)
 
@@ -50,16 +60,28 @@ if __name__ == "__main__":
     # 我们让每个client不同label的样本数量不同，以此做到Non-IID划分
     client_idcs = dirichlet_split_noniid(
         labels, alpha=dirichlet_alpha, n_clients=n_clients)
+    self_idcs = client_idcs[client_id]
+
+    base_dir = './data/MNIST-Rotate-Noniid/'
+    if not os.path.exists(base_dir):
+        os.makedirs(base_dir)
+    print('train-labels-idx1-ubyte-self')
+    save_labelset(os.path.join(base_dir, 'train-labels-idx1-ubyte-self'), labels[self_idcs],
+                  0, len(labels[self_idcs]))
+    for concept in range(4):
+        imgs = train_data_all[concept].data.numpy()[self_idcs]
+        print(f'train-images-idx3-ubyte-self-{concept}')
+        save_imgset(os.path.join(base_dir, f'train-images-idx3-ubyte-self-{concept}'), imgs, 0, len(imgs))
 
     # 展示不同label划分到不同client的情况
-    plt.figure(figsize=(12, 8))
-    plt.hist([labels[idc] for idc in client_idcs], stacked=True,
-             bins=np.arange(min(labels) - 0.5, max(labels) + 1.5, 1),
-             label=["Client {}".format(i) for i in range(n_clients)],
-             rwidth=0.5)
-    plt.xticks(np.arange(n_classes), train_data.classes)
-    plt.xlabel("Label type")
-    plt.ylabel("Number of samples")
-    plt.legend(loc="upper right")
-    plt.title("Display Label Distribution on Different Clients")
-    plt.show()
+    # plt.figure(figsize=(12, 8))
+    # plt.hist([labels[idc] for idc in client_idcs], stacked=True,
+    #          bins=np.arange(min(labels) - 0.5, max(labels) + 1.5, 1),
+    #          label=["Client {}".format(i) for i in range(n_clients)],
+    #          rwidth=0.5)
+    # plt.xticks(np.arange(n_classes), train_data.classes)
+    # plt.xlabel("Label type")
+    # plt.ylabel("Number of samples")
+    # plt.legend(loc="upper right")
+    # plt.title("Display Label Distribution on Different Clients")
+    # plt.show()

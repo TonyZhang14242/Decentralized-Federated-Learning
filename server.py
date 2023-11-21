@@ -134,7 +134,7 @@ if __name__ == '__main__':
     numpy.random.seed(args.seed)
     random.seed(args.seed)
     torch.manual_seed(args.seed)
-    if args.dataset == 'mnist':
+    if args.dataset == 'mnist' or args.dataset == 'mnist-noniid':
         net = CNNMnist()
         states = 4
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])

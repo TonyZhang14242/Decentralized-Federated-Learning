@@ -17,9 +17,9 @@ def save_imgset(filename, dataset, start, end):
 def save_labelset(filename, dataset, start, end):
     with open(filename, 'wb') as f:
         f.write(int.to_bytes(2049, 4, 'big'))
+        print(end-start)
         f.write(int.to_bytes(end - start, 4, 'big'))
-
-        f.write(dataset[start:end])
+        f.write(dataset[start:end].astype(np.uint8))
 
 
 def load_mnist_images(filename, dtype='uint8'):

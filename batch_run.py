@@ -5,7 +5,7 @@ from typing import Optional
 
 
 async def run_client(device_id, host, command):
-    async with asyncssh.connect(host, username='ming', password='123', known_hosts=None) as conn:
+    async with asyncssh.connect(host, username='OsmiumD', known_hosts=None) as conn:
         result = await conn.run(command)
         return result
 
@@ -21,7 +21,7 @@ async def run_multiple_clients(clients, command) -> None:
     # Put your lists of hosts here
     hosts = clients
     tasks = [run_client(host[0], host[1], command) for host in enumerate(hosts)]
-    tasks.append(run_server(command))
+    # tasks.append(run_server(command))
     results = await asyncio.gather(*tasks, return_exceptions=True)
 
     for i, result in enumerate(results, 1):
@@ -44,6 +44,7 @@ if __name__ == '__main__':
         while len(line) > 0:
             ls.append(line[:-1])
             line = f.readline()
+    ls = ['127.0.0.1']
     print('Input command to run:')
     command = input()
     command = 'cd ~/Decentralized-Federated-Learning/; ' + command
