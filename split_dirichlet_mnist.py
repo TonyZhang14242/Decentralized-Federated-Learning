@@ -39,6 +39,7 @@ def dirichlet_split_noniid(train_labels, alpha, n_clients):
 n_clients = 10
 dirichlet_alpha = 1.0
 seed = 1
+sample_num = 5000
 
 if __name__ == "__main__":
     client_id = int(sys.argv[1])
@@ -61,16 +62,20 @@ if __name__ == "__main__":
     client_idcs = dirichlet_split_noniid(
         labels, alpha=dirichlet_alpha, n_clients=n_clients)
     self_idcs = client_idcs[client_id]
+    print('client noniid: ', len(self_idcs))
+    while len(self_idcs) < sample_num:
+        self_idcs = np.r_[self_idcs, self_idcs]
+
+    sample_idcs = np.random.choice(self_idcs, sample_num, replace=False)
 
     base_dir = './data/MNIST-Rotate-Noniid/'
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
     print('train-labels-idx1-ubyte-self')
-    save_labelset(os.path.join(base_dir, 'train-labels-idx1-ubyte-self'), labels[self_idcs],
-                  0, len(labels[self_idcs]))
-    print(len(self_idcs))
+    save_labelset(os.path.join(base_dir, 'train-labels-idx1-ubyte-self'), labels[sample_idcs],
+                  0, sample_num)
     for concept in range(4):
-        imgs = train_data_all[concept].data.numpy()[self_idcs]
+        imgs = train_data_all[concept].data.numpy()[sample_idcs]
         print(f'train-images-idx3-ubyte-self-{concept}')
         save_imgset(os.path.join(base_dir, f'train-images-idx3-ubyte-self-{concept}'), imgs, 0, len(imgs))
 
