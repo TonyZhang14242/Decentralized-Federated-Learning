@@ -68,6 +68,7 @@ if __name__ == "__main__":
     print('train-labels-idx1-ubyte-self')
     save_labelset(os.path.join(base_dir, 'train-labels-idx1-ubyte-self'), labels[self_idcs],
                   0, len(labels[self_idcs]))
+    print(len(self_idcs))
     for concept in range(4):
         imgs = train_data_all[concept].data.numpy()[self_idcs]
         print(f'train-images-idx3-ubyte-self-{concept}')
