@@ -52,8 +52,8 @@ def load_mnist_labels(filename, dtype='uint8'):
 
 
 if __name__ == '__main__':
-    base_dir = sys.argv[1]
-    sample_num = int(sys.argv[2])
+    base_dir = './data/MNIST-Rotate/'
+    sample_num = 5000
     choice = np.random.choice(60000, sample_num)
     labels = load_mnist_labels(os.path.join(base_dir, 'train-labels-idx1-ubyte'))
     labels_c = labels[choice]

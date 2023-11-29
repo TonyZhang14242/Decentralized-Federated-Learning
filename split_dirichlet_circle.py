@@ -6,7 +6,6 @@ import numpy as np
 from torchvision import datasets
 from torch.utils.data import ConcatDataset
 import matplotlib.pyplot as plt
-from split_mnist import load_mnist_labels, load_mnist_images, save_imgset, save_labelset
 from models.mnist_self import MnistSelf
 
 
@@ -39,23 +38,23 @@ def dirichlet_split_noniid(train_labels, alpha, n_clients):
 n_clients = 10
 dirichlet_alpha = 1.0
 seed = 1
-sample_num = 5000
+sample_num = 2000
 
 if __name__ == "__main__":
     client_id = int(sys.argv[1])
+    # client_id = 1
     np.random.seed(seed)
     random.seed(seed)
     # train_data = datasets.MNIST(
     #     root="./data", download=True, train=True)
     # test_data = datasets.MNIST(
     #     root="./data", download=True, train=False)
-    train_data_all = [MnistSelf('./data/MNIST-Rotate', i, train=True, complete=True) for i in range(4)]
+    train_data_all = [np.load(f'./data/circle/train_{i}.npz')['data'] for i in range(10)]
 
     train_data = train_data_all[0]
-    classes = train_data.classes
-    n_classes = len(classes)
+    n_classes = 2
 
-    labels = np.array(train_data.targets)
+    labels = train_data[:, 2].astype(np.int32)
     dataset = train_data
 
     # 我们让每个client不同label的样本数量不同，以此做到Non-IID划分
@@ -63,21 +62,18 @@ if __name__ == "__main__":
         labels, alpha=dirichlet_alpha, n_clients=n_clients)
     self_idcs = client_idcs[client_id]
     print('client noniid: ', len(self_idcs))
-    while len(self_idcs) < sample_num:
-        self_idcs = np.r_[self_idcs, self_idcs]
 
-    sample_idcs = np.random.choice(self_idcs, sample_num, replace=False)
+    sample_idcs = np.random.choice(self_idcs, sample_num)
 
-    base_dir = './data/MNIST-Rotate-Noniid/'
+    base_dir = './data/circle-noniid/'
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
-    print('train-labels-idx1-ubyte-self')
-    save_labelset(os.path.join(base_dir, 'train-labels-idx1-ubyte-self'), labels[sample_idcs],
-                  0, sample_num)
-    for concept in range(4):
-        imgs = train_data_all[concept].data.numpy()[sample_idcs]
-        print(f'train-images-idx3-ubyte-self-{concept}')
-        save_imgset(os.path.join(base_dir, f'train-images-idx3-ubyte-self-{concept}'), imgs, 0, len(imgs))
+    for concept in range(10):
+        data = train_data_all[concept]
+        print(f'train_{concept}')
+        data_self = data[sample_idcs, :]
+        new_file = f'train_{concept}_self.npz'
+        np.savez_compressed(os.path.join(base_dir, new_file), data=data_self)
 
     # 展示不同label划分到不同client的情况
     # plt.figure(figsize=(12, 8))
@@ -85,7 +81,7 @@ if __name__ == "__main__":
     #          bins=np.arange(min(labels) - 0.5, max(labels) + 1.5, 1),
     #          label=["Client {}".format(i) for i in range(n_clients)],
     #          rwidth=0.5)
-    # plt.xticks(np.arange(n_classes), train_data.classes)
+    # plt.xticks(np.arange(n_classes), ['positive', 'negative'])
     # plt.xlabel("Label type")
     # plt.ylabel("Number of samples")
     # plt.legend(loc="upper right")
@@ -101,7 +97,7 @@ if __name__ == "__main__":
     #
     # plt.hist(label_distribution, stacked=True,
     #          bins=np.arange(-0.5, n_clients + 1.5, 1),
-    #          label=classes, rwidth=0.5)
+    #          label=['positive', 'negative'], rwidth=0.5)
     # plt.xticks(np.arange(n_clients), ["Client %d" %
     #                                   c_id for c_id in range(n_clients)])
     # plt.xlabel("Client ID")
