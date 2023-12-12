@@ -41,7 +41,9 @@ seed = 1
 sample_num = 2000
 
 if __name__ == "__main__":
-    client_id = int(sys.argv[1])
+    client_id = int(sys.argv[3])
+    dataset_name = sys.argv[1]
+    concepts = int(sys.argv[2])
     # client_id = 1
     np.random.seed(seed)
     random.seed(seed)
@@ -49,7 +51,7 @@ if __name__ == "__main__":
     #     root="./data", download=True, train=True)
     # test_data = datasets.MNIST(
     #     root="./data", download=True, train=False)
-    train_data_all = [np.load(f'./data/circle/train_{i}.npz')['data'] for i in range(10)]
+    train_data_all = [np.load(f'./data/{dataset_name}/train_{i}.npz')['data'] for i in range(concepts)]
 
     train_data = train_data_all[0]
     n_classes = 2
@@ -65,10 +67,10 @@ if __name__ == "__main__":
 
     sample_idcs = np.random.choice(self_idcs, sample_num)
 
-    base_dir = './data/circle-noniid/'
+    base_dir = f'./data/{dataset_name}-noniid/'
     if not os.path.exists(base_dir):
         os.makedirs(base_dir)
-    for concept in range(10):
+    for concept in range(concepts):
         data = train_data_all[concept]
         print(f'train_{concept}')
         data_self = data[sample_idcs, :]
