@@ -26,16 +26,16 @@ class FedClient:
     def __init__(self, args, seq):
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         # self.dataset_train = MnistPart('./data/', train=True, transform=trans_mnist)
-        if args.dataset == 'circle':
+        if args.dataset == 'circle' or args.dataset == 'circle-noniid':
             self.net_glob = MLP(2, 10, 2)
             states = 10
-            self.datasets_train = [SimpleData(f'./data/circle/train_{i}_self.npz') for i in range(states)]
+            self.datasets_train = [SimpleData(f'./data/{args.dataset}/train_{i}_self.npz') for i in range(states)]
             print(len(self.datasets_train[0]))
             self.datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
-        elif args.dataset == 'circle2':
+        elif args.dataset == 'circle2' or args.dataset == 'circle2-noniid':
             self.net_glob = MLP(2, 10, 2)
             states = 25
-            self.datasets_train = [SimpleData(f'./data/circle2/train_{i}_self.npz') for i in range(states)]
+            self.datasets_train = [SimpleData(f'./data/{args.dataset}/train_{i}_self.npz') for i in range(states)]
             print(len(self.datasets_train[0]))
             self.datasets_test = [SimpleData(f'./data/circle2/test_{i}.npz') for i in range(states)]
         elif args.dataset == 'mnist':

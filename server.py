@@ -139,11 +139,11 @@ if __name__ == '__main__':
         states = 4
         trans_mnist = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
         datasets_test = [MnistSelf('./data/MNIST-Rotate', i, train=False, transform=trans_mnist) for i in range(states)]
-    elif args.dataset == 'circle':
+    elif args.dataset == 'circle' or args.dataset == 'circle-noniid':
         net = MLP(2, 10, 2)
         states = 10
         datasets_test = [SimpleData(f'./data/circle/test_{i}.npz') for i in range(states)]
-    elif args.dataset == 'circle2':
+    elif args.dataset == 'circle2' or args.dataset == 'circle2-noniid':
         net = MLP(2, 10, 2)
         states = 25
         datasets_test = [SimpleData(f'./data/circle2/test_{i}.npz') for i in range(states)]
